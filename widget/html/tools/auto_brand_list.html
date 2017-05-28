@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<!--
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+	-->
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		//首次加载
+		load_auto_brand_list('ABCD');
+        
+	};
+	
+	function load_auto_brand_list(first_letter_str){
+		// first_letter_str: "'A', 'B', 'C', 'D'"
+		
+		// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+		
+		// 获取汽车品牌列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/auto_brands/' + first_letter_str,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        
+        	api.hideProgress();
+        
+        	//document.body.innerHTML = "<center>暂无数据记录。</center>";
+        
+        	if(ret){ // 成功
+        	
+        		var brand_id = "";
+        		var name = "";
+        		var cnname = "";
+        		var logourl = "";
+        		var nation = "";
+        		var company  = "";
+				
+				var brand_item_html;
+				
+				document.body.innerHTML = "";
+				
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+        			
+        			brand_id = row.brand_id;
+        			name = row.name;
+        			cnname = row.cnname;
+        			logourl = row.logourl;
+        			nation = row.nation;
+        			company = row.company;
+        			
+        			brand_item_html  = "<div class='auto_brand_item' onclick=\"onClickItem(" + brand_id + ",'" + name + "', '" + cnname + "', '" + logourl + "')\">" +
+        									"<img class='logo' src='" + logourl + "' />" +
+        									"<div class='name'>" + cnname + " " + name + "</div>" +
+        									//"<div class='company'>" + nation  + " - " + company + "</div>" +
+	        							"</div>";
+	    			
+	    			
+	    			document.body.innerHTML += brand_item_html;
+        		}
+        		
+        		window.scrollTo(0,0); // 跳转回顶部
+        		
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);//<center>网络异常，请稍后再试。</center>";;
+        	}
+        });
+		
+	}
+	
+	// .road_item .board{left:3px; top:3px; height:60px; width:'auto'; position:absolute}
+	// .code{left:5px;top:2px; font-size:20px;position:absolute;color:#404040}
+	// .name{left:55px;top:2px; font-size:15px;position:absolute;color:#404040}
+	
+	function onClickItem(brand_id, enname, cnname, logourl){
+		// 点击一个汽车品牌，显示其详细，及所拥有的车系 left:5px; top:8px; left:65px;top:8px; 
+		
+		var page_info = {'brand_id': brand_id, 'enname': enname, 'cnname': cnname, 'logourl': logourl};
+		
+		api.openWin({
+					name: 'win_auto_brand_series',
+					url: 'auto_brand_series_header.html',
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+				});
+	}
+
+</script>
+</html>

@@ -1,0 +1,345 @@
+
+.carchat_header {position: relative;height: 45px;line-height:45px; background-color: #404040;text-align: center;font-size: 16px; color: #FFFFFF;display:block}
+
+.carchat_header .left  {position: absolute;left: 10px;top:10px;line-height:30px; }
+.carchat_header .right {position: absolute; right: 10px; top:10px; line-height:30px;}
+.carchat_header img {top:5px; width:24px}
+.carchat_header .left1  {position: absolute;left: 10px;top:10px;height: 30px; width:50px;line-height:30px; font-size: 15px;border:1px solid #CCCCCC; border-radius:5px; text-align:center}
+.carchat_header .right1 {position: absolute; right: 10px; top:10px; height: 30px; line-height:30px;width:50px; font-size:15px;border:1px solid #CCCCCC;border-radius:5px;text-align:center}
+.carchat_header span {color:#FFFFFF}
+
+.carchat_footer{
+        height: 30px;
+		line-height: 30px;
+        background-color: #d4d4d4;
+        width: 100%;
+        text-align: center;
+    }
+.carchat_footer h5{
+        color: white;
+}
+
+.carchat_tool_panel {position:relative ;height: 243px;background-color: #FFFFFF;display:block}
+
+
+.divider {height: 15px;}
+
+.carchat_input_item {height:50px;background-color: #fff; border-bottom: 1px solid #e0e0e0;position: relative;}
+.carmark_border{top:10px;left:10px;height:28px;width:240px;border:1px solid #e0e0e0;position:absolute}
+.carchat_mark_provice_name{top:10px; left:10px; height:30px; width:50px;text-align:center;line-height:30px; font-size:15px;position:absolute;background-color:#bcbcbc;color:#FFFFFF}
+.carchat_mark_area_code{top:10px; left:62px; height:25px; width:50px;text-align:center;line-height:25px;border-radius:5px; font-size:13px;position:absolute;background-color:#bcbcbc;color:#FFFFFF}
+.carchat_mark_input {left:65px;top:12px;height: 25px;width:190px; font-size: 15px;color: #8E8C8C; outline:none;position:absolute;text-transform:uppercase}
+
+.carchat_illegal_query_item{height:180px;background-color: #fff; border-bottom: 3px solid #e0e0e0;position: relative;}
+.carchat_illegal_query_item .carmark_border{top:10px;left:10px;height:28px;width:240px;border:1px solid #e0e0e0;position:absolute}
+.carchat_illegal_query_item .province_name{top:10px; left:10px; height:30px; width:50px;text-align:center;line-height:30px; font-size:15px;position:absolute;background-color:#bcbcbc;color:#FFFFFF}
+.carchat_illegal_query_item .mark_input {left:65px;top:12px;height: 25px;width:190px;font-size: 15px;color: #8E8C8C; outline:none;position:absolute;text-transform:uppercase}
+
+.carchat_illegal_query_item .take_place_province_label{top:45px; left:10px; height:30px; width:120px;line-height:30px; font-size:15px;position:absolute;color:#aaa}
+.carchat_illegal_query_item .take_place_province{top:45px; left:130px; height:30px; width:120px;text-align:center;line-height:30px; border-radius:5px; font-size:15px;position:absolute;background-color:#bcbcbc;color:#FFFFFF}
+
+.carchat_illegal_query_item .car_mark_type_label{top:80px; left:10px; height:30px; width:120px;line-height:30px; font-size:15px;position:absolute;color:#aaa}
+.carchat_illegal_query_item .car_mark_type{top:80px; left:130px; height:30px; width:120px;text-align:center;line-height:30px; border-radius:5px; font-size:15px;position:absolute;background-color:#bcbcbc;color:#FFFFFF}
+
+.carchat_illegal_query_item .frame_no_input{left:10px;top:115px;height: 25px;width:240px;font-size: 15px;color: #8E8C8C; outline:1px solid #ccc;outline-offset:0px;position:absolute;text-transform:uppercase}
+.carchat_illegal_query_item .engine_no_input{left:10px;top:150px;height: 25px;width:240px;font-size: 15px;color: #8E8C8C; outline:1px solid #ccc;outline-offset:0px;position:absolute;text-transform:uppercase}
+.carchat_illegal_query_item .query_btn{top:10px; height:35px; width:60px;text-align:center;line-height:35px;border-radius:5px; font-size:13px;position:absolute;right:5px;background-color:#42BD41;color:#FFFFFF}
+
+.carchat_illegal_record_item{height:110px;background-color: #fff; border-bottom: 1px solid #e0e0e0;position: relative;padding-left: 10px;margin: 0 10px}
+.carchat_illegal_record_item .time{left:10px; top:10px; font-size:15px;color:#404040;position: absolute}
+.carchat_illegal_record_item .price{left:10px; top:30px; font-size:15px;color:#404040;position: absolute}
+.carchat_illegal_record_item .score{left:10px; top:50px; font-size:15px;color:#404040;position: absolute}
+.carchat_illegal_record_item .address{left:10px; top:70px; font-size:15px;color:#404040;position: absolute}
+.carchat_illegal_record_item .content{left:10px; top:90px; font-size:15px;color:#404040;position: absolute}
+
+
+.carchat_car_item{height:60px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.carchat_car_item .auto_brand_logo{left:110px; top:3px; width:40px; height:'auto';position:absolute}
+.carchat_car_item .left{position: absolute; right: 10px;top:10px}
+.carchat_car_item .car_mark {left: 5px; top:14px;position: absolute; width:95px;height:32px;line-height:32px; font-size: 18px;text-align: center;color:#FFFFFF; background-image:url(../image/mark_blue_bg.png);background-repeat: round}
+.carchat_car_item .car_series {left:160px; top:10px; font-size: 12px; position: absolute;color:#666666}
+.carchat_car_item .car_news {left:145px; top:45px; width:'auto'; font-size: 12px; position: absolute;color:#666666}
+.carchat_car_item .car_news_icon{left:110px; top:45px; width:27px; position:absolute}
+
+.car_function_item_first_row {height:80px; border-bottom: 1px solid #CCCCCC; position: relative; padding:0px}
+.car_function_item_first_row .car_function_item_cell1 {height:80px; width:25%;  position: relative; padding:0px; display:inline-block}
+.car_function_item_first_row .car_function_item_cell4 {height:80px; width:25%; position: relative;  padding-left:0px; display:inline-block}
+.car_function_item_first_row .function_icon {top:5px;width:40px;height:'auto';position:relative}
+.car_function_item_first_row .function_name {top:10px;width:'auto';font-size:12px;position:relative;color:#323237}
+
+.car_function_item_row {height:80px; border-bottom: 1px solid #CCCCCC; position: relative; padding:0px}
+.car_function_item_row .car_function_item_cell1 {height:80px; width:25%;  position: relative; padding:0px; display:inline-block}
+.car_function_item_row .car_function_item_cell4 {height:80px; width:25%; position: relative; padding-left:0px; display:inline-block}
+.car_function_item_row .function_icon {top:5px;width:40px;height:'auto';position:relative}
+.car_function_item_row .function_name {top:10px;width:'auto';font-size:12px;position:relative;color:#323237}
+
+.carchat_radio_item{height:50px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.carchat_radio_item img{left:3px; top:5px; width:60px;  position:absolute}
+.carchat_radio_item input{position: absolute; top:18px; right: 15px;vertical-align:middle}
+.carchat_radio_item .title0 {top:15px; left: 10px; font-size: 15px;position: absolute;color:#666666;}
+.carchat_radio_item .title1 {top:10px; left: 80px; font-size: 15px;position: absolute;color:#666666;}
+.carchat_radio_item .title2 {top:35px; left: 80px; font-size: 12px;position: absolute;color:#666666;}
+
+.carchat_btn {margin:3px 10px;}
+.carchat_btn {background: #4DC060;height: 40px; text-align: center; line-height: 40px; font-size: 20px;margin-top: 20px;border-radius: 5px;}
+.carchat_btn span {color: #fff;}
+
+.input_err_msg {margin-left:10px; color:red}
+
+.carchat_board_item {height:55px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.carchat_board_item .board_logo{left:3px; top:3px; width:66px; height:50px;position:absolute;border: 1px solid #BBBBBB}
+.carchat_board_item .board_title {left: 90px; top:5px; width:120px; font-size: 18px;position: absolute;color:#666666;}
+.carchat_board_item .board_last_message{left:90px; top:32px; width:120px; word-wrap:break-word; font-size: 12px; position: absolute;color:#666666}
+
+
+.oil_price_item_declare{height:45px; border-bottom: 1px solid #CCCCCC; text-align:center; position: relative; padding:2px}
+.oil_price_item {height:160px; border-bottom: 1px solid #CCCCCC; position: relative; padding:2px}
+.oil_price_item .province{top:5px; left: 10px; font-size: 15px;position: absolute;color:#404040;}
+.oil_price_item .oil_name{left: 80px;  font-size: 12px;position: absolute;color:#909090;}
+.oil_price_item .oil_price{left: 150px; font-size: 12px; font-weight:bold; position: absolute;color:#909090;}
+.oil_price_item .price_unit{left: 180px; font-size: 12px;position: absolute;color:#909090;}
+.oil_price_item .update_time{left: 80px; font-size: 12px;position: absolute;color:#909090;}
+.oil_price_item .cal_cost{top:70px; right: 10px; width:21px;height:21px; position: absolute;background-image: url(../image/right_arrow.png)}
+
+.oil_price_item .item1{top:5px; left: 55px; font-size: 12px;position: absolute;color:#BCBCBC;}
+.oil_price_item .item2{top:18px; left: 55px; font-size: 12px;position: absolute;color:#BCBCBC;}
+.oil_price_item .item3{top:31px; left: 55px; font-size: 12px;position: absolute;color:#BCBCBC;}
+.oil_price_item .item4{top:44px; left: 55px; font-size: 12px;position: absolute;color:#BCBCBC;}
+.oil_price_item .time{top:5px; left: 190px; font-size: 12px;position: absolute;color:#BCBCBC;}
+
+.oil_buy_calculate_item{height:220px; border-bottom: 3px solid #CCCCCC; position: relative; padding:2px}
+.oil_buy_calculate_item .target_label{top:15px;left:10px;width:70px;font-size:13px;text-align:right;position:absolute;color:#404040}
+.oil_buy_calculate_item .target_value_border_div{top:5px;left:82px;height:22px;width:70px;border-bottom:1px solid #ccc;position:absolute}
+.oil_buy_calculate_item .target_value_minus_btn{top:5px;left:82px;height:30px;width:30px;font-size: 20px;text-align:center;line-height:30px;border:1px solid #ccc;position:absolute;background-color: #BCBCBC;color: #909090;}
+.oil_buy_calculate_item .target_value          {top:5px;left:112px;height:30px;width:48px;font-size: 15px;text-align:center;line-height:30px;color: #404040; border:1px solid #ccc;position:absolute;background-color:#dcdcdc}
+.oil_buy_calculate_item .target_value_add_btn  {top:5px;left:160px;height:30px;width:30px;font-size: 20px;text-align:center;line-height:30px;border:1px solid #ccc;position:absolute;background-color: #BCBCBC;color: #909090;}
+.oil_buy_calculate_item .target_unit{top:15px;left:195px;width:80px;font-size:13px;position:absolute;color:#404040}
+
+
+.oil_buy_calculate_item .oil_average_consumption_label{top:50px;left:10px;width:70px;font-size:13px;text-align:right;position:absolute;color:#404040}
+.oil_buy_calculate_item .oil_average_consumption_value_div{top:35px;left:82px;height: 22px;width:70px;border-bottom:1px solid #ccc;position:absolute}
+.oil_buy_calculate_item .oil_average_consumption_value_minus_btn{top:40px;left:82px;height:30px;width:30px;font-size: 20px;text-align:center;line-height:30px;border:1px solid #ccc;position:absolute;background-color: #BCBCBC;color: #909090;}
+.oil_buy_calculate_item .oil_average_consumption_value          {top:40px;left:112px;height:30px;width:48px;font-size: 15px;text-align:center;line-height:30px;color: #404040; border:1px solid #ccc;position:absolute;background-color:#dcdcdc}
+.oil_buy_calculate_item .oil_average_consumption_value_add_btn  {top:40px;left:160px;height:30px;width:30px;font-size: 20px;text-align:center;line-height:30px;border:1px solid #ccc;position:absolute;background-color: #BCBCBC;color: #909090;}
+.oil_buy_calculate_item .oil_average_consumption_unit{top:50px;left:195px;width:80px;font-size:13px;position:absolute;color:#404040}
+
+.oil_buy_calculate_item .oil_cal_result{top:75px;left:10px; width:90%;height:135px;border-top: 1px solid #CCCCCC;position: absolute}
+.oil_buy_calculate_item .oil_cal_result .oil_name{left: 2px; width:50px; font-size: 12px; text-align:right; position: absolute;color:#909090}
+.oil_buy_calculate_item .oil_cal_result .oil_price{left: 57px; width:27px; font-size: 12px;text-align:center; font-weight:bold; position: absolute;color:#909090}
+.oil_buy_calculate_item .oil_cal_result .price_unit{left: 87px; width:50px; font-size: 12px;position: absolute;color:#909090}
+.oil_buy_calculate_item .oil_cal_result .cal_result1{left: 130px; width:220px;   font-size: 12px;position: absolute;color:#909090;}
+.oil_buy_calculate_item .oil_cal_result .cal_result2{left: 230px; width:100px; font-size: 12px;position: absolute;color:#909090;}
+.oil_buy_calculate_item .oil_cal_result .cal_result3{left: 260px; font-size: 12px;position: absolute;color:#909090;}
+
+
+.car_friend_attention_request_item {height:50px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.car_friend_attention_request_item .portrait{left:5px; top:5px; width:40px; height:'auto';position:absolute}
+.car_friend_attention_request_item .user_name{left:60px; top:5px; font-size: 15px; position: absolute;color:#666666}
+.car_friend_attention_request_item .request_comment{left:60px; top:28px; font-size: 12px; position: absolute;color:#BCBCBC}
+.car_friend_attention_request_item .verify_result{right:60px;top:10px;height:30px; width:45px;text-align:center;line-height:30px;font-size:13px;position:absolute;color:#BCBCBC}
+.car_friend_attention_request_item .btn_remove{right:5px; top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+.car_friend_attention_request_item .btn_accept{right:60px; top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#42BD41;color:#FFFFFF}
+
+.car_news_add_news_item {height:80px; border-bottom: 1px solid #CCCCCC;position: relative; padding:5px 5px 2px 5px}
+.car_news_add_news_clear_btn     {right:115px; top:50px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#42BD41;color:#FFFFFF}
+.car_news_add_news_normal_msg_btn{right: 60px; top:50px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#42BD41;color:#FFFFFF}
+.car_news_add_news_ok_btn        {right: 5px;  top:50px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#42BD41;color:#FFFFFF}
+.car_news_item {height:40px; border-bottom: 1px solid #CCCCCC;position: relative; padding:5px}
+.car_news_item .content {top:5px; left: 10px; font-size: 15px;position: absolute;color:#666666;}
+.car_news_item .pub_time{top:28px; left: 10px; font-size: 12px;position: absolute;color:#666666;}
+.car_news_item .delete{right: 5px;  top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+
+.car_basic_info_item {height:30px; border-bottom: 1px solid #CCCCCC;position: relative; padding:5px}
+.car_basic_info_item .field_name {top:8px; left: 10px; font-size: 15px;position: absolute;color:#ABABAB;}
+.car_basic_info_item .field_value{top:10px; right: 10px; font-size: 13px;position: absolute;color:#ABABAB;}
+
+.car_function_record_item {border-bottom: 1px solid #CCCCCC;position: relative; padding:5px}
+.car_function_record_item .field_name {left: 10px; font-size: 15px;position: absolute;color:#ABABAB;}
+.car_function_record_item .field_value{right: 10px; font-size: 13px;position: absolute;color:#ABABAB;}
+.car_function_record_item .field {left: 10px; font-size: 15px;position: absolute;color:#ABABAB;}
+
+
+.peccany_punish_item {height:70px;border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.peccany_punish_item .code{top:5px; left: 5px; font-size: 12px;position: absolute;color:#404040;}
+.peccany_punish_item .point{top:18px; left: 5px; font-size: 12px;position: absolute;color:#404040;}
+.peccany_punish_item .fine{top:31px; left: 5px; font-size: 12px;position: absolute;color:#404040;}
+.peccany_punish_item .punish{top:44px; left: 5px; width:45%; font-size: 12px;position: absolute;color:#404040;word-wrap:break-word;}
+.peccany_punish_item .description{top:0px; right: 0px; height:70px;width:50%;padding-left:5px;padding-top:5px;border-left:1px solid #CCCCCC;word-wrap:break-word; font-size: 12px;position: absolute;color:#404040;}
+
+
+.charge_standard_item {border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.charge_standard_item .name{top:5px; left: 5px; font-size: 15px;position: absolute;color:#404040;background-color: yellow}
+.charge_standard_item .standard_descr{top:25px; left: 5px; font-size: 12px;position: absolute;color:#404040;word-wrap:break-word;}
+.charge_standard_item .standard_descr img{left:3px; top:20px; height:30px;  position:absolute}
+.charge_standard_item .memo{bottom:5px; left: 5px; font-size: 12px;position: absolute;color:#404040;}
+.charge_standard_item_detial_name{height:30px; border-bottom: 1px solid #CCCCCC;position: relative; padding:5px;font-size: 15px;text-align:center;line-height:30px;}
+.charge_standard_item_detial_content{padding:5px;font-size: 15px;position: relative; word-wrap:break-word;color:#404040;}
+.charge_standard_item_detial_img{left:10px; height:30px;  position:relative}
+.charge_standard_item_detial_memo{bottom:5px; left: 10px; font-size: 12px;position: absolute;color:#404040;}
+
+.search_car_phone_btn {top:10px; height:30px; width:60px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;right:5px;background-color:#42BD41;color:#FFFFFF}
+.search_car_phone_item {height:100px;border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.search_car_phone_item .phone{top:8px; left: 10px; font-size: 15px;position: absolute;color:#404040}
+.search_car_phone_item .call_btn{right:15px; top:2px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+.search_car_phone_item .sms_btn{right:70px; top:2px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+.search_car_phone_item .send_message_label{top:40px; left: 10px; font-size: 15px;position: absolute;color:#404040}
+.search_car_phone_item .message_editor_container{top:60px; left:10px; right:10px; height:35px;border-bottom: 1px solid #CCCCCC;position: absolute;}
+.search_car_phone_item .message_editor_container .message_editor{top:2px;left:2px;height:30px;width:100%;font-size:15px;position: absolute;color:#8C8C8C;outline:none}
+.search_car_phone_item .message_editor_container .send_message_btn{right:5px; top:2px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+
+
+.common_title_item {height:40px; border-bottom: 1px solid #CCCCCC; line-height:35px;position: relative; padding:2px}
+.common_title_item .title{top:5px; left: 10px; font-size: 15px;position: absolute;color:#404040;}
+.common_title_item .detail_arrow{top:9px; right: 10px; width:21px;height:21px; position: absolute;background-image: url(../image/right_arrow.png)}
+
+.common_detail_title{height:30px; border-bottom: 1px solid #CCCCCC;position: relative; padding:5px;font-size: 15px;text-align:center;line-height:30px;}
+.common_detail_content{padding:5px;font-size: 15px;position: relative; word-wrap:break-word;}
+
+
+.auto_brand_index_panel {position:relative ;height: 73px;background-color: #404040;display:block}
+.auto_brand_index_panel .index_btn1{left:6%;  top:2px; height:30px; width:25%;text-align:center;line-height:30px;border: 1px solid #FFFFFF;border-radius:5px; font-size:13px;position:absolute;background-color:#404040;color:#FFFFFF}
+.auto_brand_index_panel .index_btn2{left:37%; top:2px; height:30px; width:25%;text-align:center;line-height:30px;border: 1px solid #FFFFFF;border-radius:5px; font-size:13px;position:absolute;background-color:#404040;color:#FFFFFF}
+.auto_brand_index_panel .index_btn3{left:68%; top:2px; height:30px; width:25%;text-align:center;line-height:30px;border: 1px solid #FFFFFF;border-radius:5px; font-size:13px;position:absolute;background-color:#404040;color:#FFFFFF}
+.auto_brand_index_panel .index_btn4{left:6%;  top:37px; height:30px; width:25%;text-align:center;line-height:30px;border: 1px solid #FFFFFF;border-radius:5px; font-size:13px;position:absolute;background-color:#404040;color:#FFFFFF}
+.auto_brand_index_panel .index_btn5{left:37%; top:37px; height:30px; width:25%;text-align:center;line-height:30px;border: 1px solid #FFFFFF;border-radius:5px; font-size:13px;position:absolute;background-color:#404040;color:#FFFFFF}
+.auto_brand_index_panel .index_btn6{left:68%; top:37px; height:30px; width:25%;text-align:center;line-height:30px;border: 1px solid #FFFFFF;border-radius:5px; font-size:13px;position:absolute;background-color:#404040;color:#FFFFFF}
+
+.auto_brand_item {height:80px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.auto_brand_item .logo{left:5px; top:5px; width:70px; height:'auto';position:absolute}
+.auto_brand_item .name{left:100px;top:0px; height:80px;text-align:center;line-height:80px; font-size:16px;position:absolute;color:#404040}
+.auto_brand_item .company{left:100px;top:30px;font-size:12px;position:absolute;color:#404040}
+
+.auto_brand_series_header_panel {position:relative ;height: 80px;border-bottom: 3px solid #CCCCCC;text-align:center;display:block}
+.auto_brand_series_header_panel .logo{width:70px; height:'auto';position:relative}
+.auto_brand_series_header_panel .name{font-size:12px;position:relative;color:#404040}
+.auto_brand_series_header_panel .search_4s{top:10px; right: 10px; font-size: 13px;position: absolute;color:#ABABAB;}
+
+.auto_brand_series_list_item {height:30px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.auto_brand_series_list_item .manufacture{left:5px;top:7px; font-size:15px; position:absolute;color:#404040}
+.auto_brand_series_list_item .series_name{left:20px;top:8px; font-size:12px; position:absolute;color:#404040}
+
+/* 通用的分组条目 */
+.common_group_name_item {height:30px; border-bottom: 1px solid #CCCCCC;font-size:15px;text-align:center;line-height:30px;position: relative; padding:2px;background-color:#DDDDDD }
+
+.road_item {height:65px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.road_item .express_board{left:3px; top:3;position: absolute; width:60px;height:60px; background-image:url(../image/national_expressway.png);background-repeat: round}
+.road_item .express_board .code{left:2px;top:15px;height:30px;width:56px; font-size:20px;text-align:center;line-height:30px;position:absolute;color:#FFFFFF}
+.road_item .express_board .name{left:2px;bottom:2px;height:15px;width:56px; font-size:10px;text-align:center;line-height:15px;position:absolute;color:#FFFFFF}
+.road_item .express_from_to{left:70px;top:3px; font-size:15px;font-weight:bold;position:absolute;color:#404040}
+.road_item .express_long{left:175px;top:3px; font-size:12px;position:absolute;color:#404040}
+.road_item .express_middle_city{left:70px;top:23px; font-size:10px;position:absolute;color:#404040;word-wrap:break-word}
+
+.road_item .road_board{left:3px; top:3;position: absolute; width:60px;height:40px; background-image:url(../image/national_road.png);background-repeat: round}
+.road_item .road_board .code{left:2px;top:2px;height:36px;width:56px; font-size:20px;text-align:center;line-height:36px;position:absolute;color:#FFFFFF}
+.road_item .road_from_to{left:68px;top:2px;font-size:15px; font-weight:bold;position:absolute;color:#404040}
+.road_item .road_long{left:175px;top:5px; font-size:12px;position:absolute;color:#404040}
+.road_item .road_middle_city{left:68px;top:23px; font-size:10px;position:absolute;color:#404040;word-wrap:break-word}
+
+.common_phone_item{height:40px; border-bottom: 1px solid #CCCCCC; position: relative;}
+.common_phone_item .name{top:5px; left: 10px; height:30px; font-size: 15px; line-height:30px; position: absolute;color:#404040;}
+.common_phone_item .phone{top:5px; right: 75px; height:30px; font-size: 18px; font-weight:bold; line-height:30px; position: absolute;color:#FF0000;}
+.common_phone_item .call_btn{right:15px; top:5px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#42BD41;color:#FFFFFF}
+
+.traffic_sign_group_item{height:60px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.traffic_sign_group_item img{left:10px; top:5px; height:50px;  position:absolute}
+.traffic_sign_group_item .name{left:130px;top:20px; font-size:15px;position:absolute;color:#404040}
+
+.traffic_sign_item{height:60px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.traffic_sign_item img{left:10px; top:5px; height:50px;  position:absolute}
+.traffic_sign_item .name{left:70px;top:5px; font-size:15px;position:absolute;color:#404040}
+.traffic_sign_item .memo{left:70px;top:25px; font-size:10px;position:absolute;color:#404040;word-wrap:break-word;margin-right: 5px}
+
+.traffic_incident_rending_item{height:200px; border-bottom: 1px solid #CCCCCC;position: relative; padding:5px; text-align:center}
+.traffic_incident_rending_item img{height:190px;}
+
+.auto_show_item{height:130px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.auto_show_item .name    {left:10px;top:5px; font-size:15px;font-weight:bold; position:absolute;color:#404040}
+.auto_show_item .show_time{left:10px;top:30px; font-size:13px; position:absolute;color:#404040}
+.auto_show_item .location{left:10px;top:55px; font-size:13px; position:absolute;color:#404040}
+.auto_show_item .phone   {left:10px;top:80px; font-size:13px; position:absolute;color:#404040}
+.auto_show_item .website {left:10px;top:105px; font-size:13px; position:absolute;color:#404040}
+.auto_show_item .memo    {left:10px;top:125px; font-size:13px; position:absolute;color:#404040}
+
+
+.traffic_limit_city_item{border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.traffic_limit_city_item .name    {left:10px;top:5px; font-size:15px;font-weight:bold; position:absolute;color:#404040}
+.traffic_limit_city_item .date {left:10px;top:30px; font-size:13px; position:absolute;color:#404040;}
+.traffic_limit_city_item .limited_auto_type {left:10px;top:55px; font-size:13px; position:absolute;color:#404040}
+.traffic_limit_city_item .limit_content {left:10px;top:55px;padding-right:10px;word-wrap:break-word; font-size:13px; position:absolute;color:#404040}
+.traffic_limit_city_item .limit_detail_btn   {left:10px;top:80px; font-size:13px; position:absolute;color:#404040}
+
+.traffic_limit_item{border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.traffic_limit_item .day_type    {left:10px;top:5px; font-size:15px;font-weight:bold; position:absolute;color:#404040}
+.traffic_limit_item .limit_date_range {left:10px;top:30px; font-size:13px; position:absolute;color:#404040}
+.traffic_limit_item .limit_content {left:10px;top:55px;margin-right:10px;word-wrap:break-word; font-size:13px; position:absolute;color:#404040;background-color: #BCBCBC}
+
+
+.traffic_limit_item .limit_time_range {left:10px;top:55px; font-size:13px; position:absolute;color:#404040}
+.traffic_limit_item .limit_region   {left:10px;top:80px; font-size:13px; position:absolute;color:#404040}
+.traffic_limit_item .limit_region_map_btn   {right:15px; top:80px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#42BD41;color:#FFFFFF}
+.traffic_limit_item .punish {left:10px;font-size:13px; position:absolute;color:#404040}
+.traffic_limit_item .memo    {left:10px;font-size:13px; position:absolute;color:#404040}
+
+.car_owner_message_item{height:130px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.car_owner_message_item .del_btn{right:15px; top:5px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+.car_owner_message_item .send_user{left:10px;top:5px; font-size:10px; position:absolute;color:#A0A0A0}
+.car_owner_message_item .send_time{left:10px;top:25px; font-size:13px; position:absolute;color:#404040}
+.car_owner_message_item .sent_message{left:10px;top:25px; margin-right:65px; font-size:15px; position:absolute;color:#404040}
+.car_owner_message_item .reply_time{left:10px;top:80px; font-size:10px; position:absolute;color:#A0A0A0}
+.car_owner_message_item .reply_message{left:10px;top:100px; font-size:15px; position:absolute;color:#404040}
+.car_owner_message_item .message_editor_container{top:85px; left:10px; right:10px; height:35px;border-bottom: 1px solid #CCCCCC;position: absolute;}
+.car_owner_message_item .message_editor_container .message_editor{top:2px;left:2px;height:30px;width:100%;font-size:15px;position: absolute;color:#8C8C8C;outline:none}
+.car_owner_message_item .message_editor_container .send_message_btn{right:5px; top:2px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#00AA00;color:#FFFFFF}
+
+
+.car_map_lukuang_btn{top:3px;left:3px; width:30px;height:30px;border: 1px solid #CCCCCC;border-radius:5px; position: absolute;z-index: 999999}
+.car_map_zoomin_btn {top:64px;left:3px;width:30px;height:30px;border: 1px solid #CCCCCC;border-radius:5px; position: absolute;z-index: 999999;background-image:url(../image/zoomin.png)}
+.car_map_zoomout_btn{top:105px;left:3px;width:30px;height:30px;border: 1px solid #CCCCCC;border-radius:5px; position: absolute;z-index: 999999;background-image:url(../image/zoomout.png)}
+
+
+/* 牌照调控的城市列表 */
+.licence_limit_city_item {height:40px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.licence_limit_city_item .city_name{top:0px; left: 10px; font-size: 16px; line-height:40px; position: absolute;color:#404040;}
+.licence_limit_city_item .license_limit_type{top:0px; left: 60px; font-size: 12px;line-height:40px; position: absolute;color:#808080;}
+.licence_limit_city_item .detail_arrow{top:9px; right: 10px; width:21px;height:21px; position: absolute;background-image: url(../image/right_arrow.png)}
+
+/* 每个月牌照调控的列表 */
+.licence_control_result_item{height:65px; border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.licence_control_result_item .date_block{left:0px;top:0px;width:130px;height:70px;border-right:1px solid #CCCCCC;position:absolute;}
+.licence_control_result_item .date_block .year_month    {left:5px;top:5px;width:120px;height:40px;font-size:15px;font-weight:bold;position: absolute;color:#404040}
+.licence_control_result_item .date_block .licence_amount{left:5px;top:30px;width:120px;height:40px;font-size:13px;position: absolute;color:#A0A0A0}
+.licence_control_result_item .date_block .applicant_amount{left:5px;top:50px;width:120px;height:40px;font-size:13px;position: absolute;color:#A0A0A0}
+.licence_control_result_item .bid_min_price{left:131px;top:5px;height:25px;font-size:12px;text-align:left;line-height:25px;word-break:keep-all; white-space:nowrap; position:absolute;color:#808080;background-color: #98fb98;padding-left:5px}
+.licence_control_result_item .bid_ave_price{left:131px;top:35px;height:25px;font-size:12px;text-align:left;line-height:25px;word-break:keep-all; white-space:nowrap; position:absolute;color:#808080;background-color: #ffdab9;padding-left:5px}
+
+/* 汽车销量排行榜的分类列表 */
+/*
+ * height:120px;
+ * height:119px;line-height:119px;height:120px;
+ */
+.auto_ranking_category_item{position: relative}
+.auto_ranking_category_item .date_block{left:0px;top:0px;width:130px;border-bottom: 1px solid #CCCCCC;font-size:18px;text-align:center;border-right:1px solid #CCCCCC;position:absolute;}
+
+.auto_ranking_category_item .category_items_block{left:131px;top:0px;position:absolute}
+.auto_ranking_category_item .category_items_block .category_item_item {height:39px; border-bottom: 1px solid #CCCCCC;position: relative;}
+.auto_ranking_category_item .category_items_block .category_item_item .title{top:0px; left: 10px; height:39px;line-height:39px; font-size: 15px;position: absolute;color:#404040;}
+.auto_ranking_category_item .category_items_block .category_item_item .detail_arrow{top:9px; right: 10px; width:21px;height:21px; position: absolute;background-image: url(../image/right_arrow.png)}
+
+/*
+ * 某个销量排行
+ */
+.auto_ranking_item{border-bottom: 1px solid #CCCCCC;position: relative;}
+/* 高度由计算决定 */
+.auto_ranking_item .rank_block{left:0px;top:0px;width:100px;font-size:18px;text-align:center;border-right:1px solid #CCCCCC;position:absolute;}
+.auto_ranking_item .ranking_title{left:105px;width:65px;font-size:13px;text-align:right;color:#404040;position: absolute}
+.auto_ranking_item .ranking_value{left:190px;font-size:13px;text-align:left;color:#A0A0A0;position: absolute}
+
+.auto_ranking_category_item .category_item{height:30px;border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+
+/*
+ * 车辆估计
+ */
+.car_evaluation_method_item{border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+.car_evaluation_method_item .method_name{left:10px;top:5px; font-size:15px;font-weight:bold; position:absolute;color:#404040}
+.car_evaluation_method_item .method_description{left:10px;top:35px;padding-right:10px;word-wrap:break-word; font-size:13px; position:absolute;color:#404040}
+.car_evaluation_method_item .detail_arrow{top:9px; right: 10px; width:21px;height:21px; position: absolute;background-image: url(../image/right_arrow.png)}

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	
+    	.car_basic_info_item{height:140px;border-bottom: 1px solid #CCCCCC;position: relative; padding:0px}
+    	.classify_item{height:30px;border-bottom: 1px solid #CCCCCC;position: relative; padding-left:5px;background-color: #ABABAB;text-align:left;line-height:30px;}
+    	.cost_item{height:30px;border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+    	.cost_item_with_option{height:60px;border-bottom: 1px solid #CCCCCC;position: relative; padding:2px}
+    	
+    	input {height: 22px;font-size: 15px;color: #404040;width: 150px; outline:1px solid #ccc;outline-offset: 2px}
+		input::-webkit-input-placeholder {color: #ccc;}
+		
+		.subtotal_label{top:2px; right:100px;position: absolute;color:#404040}
+		.subtotal_value{top:2px; right:10px;position: absolute;color:#ab0000}
+		
+		.cost_checkbox{top:7px; left:10px; width:20px; position: absolute;outline:0px solid #ccc;outline-offset: 0px}
+		.cost_name{top:7px; left:35px;position: absolute;color:#404040;font-size:13px}
+		.cost_value{top:7px; left:125px; width:100px; border-bottom: 1px solid #CCCCCC; position: absolute;font-size:15px;color:#404040;text-align:center}
+		.cost_memo{top:7px; right:10px;width:30px; position: absolute;color:#404040;font-size:15px;border-radius:3px;background-color: #BCBCBC;text-align:center}
+		.cost_value_input{height: 22px;left:125px; top:6px; width: 100px; font-size: 15px;color: #404040; outline:1px solid #ccc;outline-offset: 0px;position: absolute}
+		.cost_unit{top:7px; left:230px;position: absolute;color:#404040;font-size:13px}
+		.option_name{top:42px; left:35px;position: absolute;color:#404040;font-size:13px}
+		
+		.option_btn{top:35px; left:125px; height:25px; width:100px;text-align:center;line-height:25px;border-radius:5px; font-size:13px;position:absolute;background-color:#bcbcbc;color:#FFFFFF}
+    </style>
+</head>
+<body>
+	<div class="car_basic_info_item">
+		<div style="left:12px;top:10px; font-size:13px;position:absolute;color:#404040">车身价格：</div>
+		<input type="number" id="carprice" placeholder="" value="100000" style="left: 85px;top:7px;position: absolute" onkeyup="onInputCostValue()"/>
+		<div style="left:240px;top:10px; font-size:13px;position:absolute;color:#404040">元</div>
+		
+		<div style="left:2px;top:45px; font-size:13px;position:absolute;color:#404040">发动机排量：</div>
+		<input type="hidden" id="capacity_index" value="1"/>
+		<div id="generator_capacity" class="option_btn" style="left:85px;top:40px" onclick="selectGeneratorCapacity()">1.0 - 1.6L</div>
+		<!--
+		<div id="generator_capacity" style="left:85px;top:45px; font-size:13px;position:absolute;color:#404040">1.0 - 1.6L</div>
+		<div class="option_btn" style="left:180px;top:40px">选择</div>
+		-->
+		<div style="left:12px;top:80px; font-size:13px;position:absolute;color:#404040">座位数量：</div>
+		<input type="hidden" id="seat_amount_index" value="0"/>
+		<div id="seat_amount" class="option_btn" style="left:85px;top:75px" onclick="selectSeatAmount()">家用6座以下</div>
+		<!--
+		<div id="seat_amount" style="left:85px;top:75px; font-size:13px;position:absolute;color:#404040">家用6座以下</div>
+		<div class="option_btn" style="left:180px;top:70px">选择</div>
+		 style="top:140px"
+		-->
+		<div style="left:12px;top:115px; font-size:13px;position:absolute;color:#404040">车辆产地：</div>
+		<input type="hidden" id="produce_place_index" value="0"/>
+		<div id="produce_place_label" class="option_btn" style="left:85px;top:110px" onclick="selectProducePlace()">国产</div>
+		
+	</div>
+	
+	<div class="classify_item">必要费用
+			<div class="subtotal_label">小计：</div>
+			<div class="subtotal_value" id="required_subtotal_label">0 元</div>
+	</div>
+		
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" checked  disabled="true"/>
+		<div class="cost_name">车辆购置税：</div>
+		<input class="cost_value_input" type="number" id="gouzhishui_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" checked  disabled="true"/>
+		<div class="cost_name">上牌费用：</div>
+		<input class="cost_value_input" type="number" id="shangpai_cost" placeholder="" value="500" onkeyup="onInputCostValue()"/>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" checked  disabled="true"/>
+		<div class="cost_name">车船使用税：</div>
+		<input class="cost_value_input" type="number" id="shiyongshui_cost" placeholder="" value="0"  readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" checked  disabled="true"/>
+		<div class="cost_name">强制保险：</div>
+		<input class="cost_value_input" type="number" id="qiangxian_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	
+	<div class="classify_item">商业保险
+		<div class="subtotal_label">小计：</div>
+		<div class="subtotal_value" id="insurance_subtotal_label">0元</div>
+	</div>
+	
+	<div class="cost_item_with_option">
+		<input type="checkbox" class="cost_checkbox" id="sanzhe_checkbox" checked onchange="calculateTotalCost()"/>
+		<div class="cost_name">第三者责任险：</div>
+		<input class="cost_value_input" type="number" id="sanzhe_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+		
+		<div class="option_name">赔付额度：</div>
+		<input type="hidden" id="sanzhe_peifu_index" value="3"/>
+		<div id="sanzhe_insurance_peifu_label" class="option_btn" onclick="selectSanzhePeifu()">50万</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="sunshi_checkbox" checked onchange="calculateTotalCost()"/>
+		<div class="cost_name">车辆损失险：</div>
+		<input class="cost_value_input" type="number" id="sunshi_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+
+	<div class="cost_item_with_option">
+		<input type="checkbox" class="cost_checkbox" id="renyuan_checkbox" checked onchange="calculateTotalCost()"/>
+		<div class="cost_name">车上人员险：</div>
+		<input class="cost_value_input" type="number" id="renyuan_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+		
+		<div class="option_name">投保人数：</div>
+		<input type="hidden" id="person_count_index" value="4"/>
+		<div id="person_count_label" class="option_btn" onclick="selectPersonCount()">5人</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="mianpei_checkbox" checked onchange="calculateTotalCost()"/>
+		<div class="cost_name">不计免赔险：</div>
+		<input class="cost_value_input" type="number" id="mianpei_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="daoqiang_checkbox"  onchange="calculateTotalCost()"/>
+		<div class="cost_name">全车盗抢险：</div>
+		<input class="cost_value_input" type="number" id="daoqiang_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="boli_checkbox"  onchange="calculateTotalCost()"/>
+		<div class="cost_name">玻璃破碎险：</div>
+		<input class="cost_value_input" type="number" id="boli_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="ziran_checkbox"  onchange="calculateTotalCost()"/>
+		<div class="cost_name">自然损失险：</div>
+		<input class="cost_value_input" type="number" id="ziran_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="fadongji_checkbox"  onchange="calculateTotalCost()"/>
+		<div class="cost_name">发动机损失险：</div>
+		<input class="cost_value_input" type="number" id="fadongji_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="cost_item_with_option">
+		<input type="checkbox" class="cost_checkbox" id="huahen_checkbox"  onchange="calculateTotalCost()"/>
+		<div class="cost_name">车辆划痕险：</div>
+		<input class="cost_value_input" type="number" id="huahen_cost" value="0" readonly="readonly" style="background-color: #dcdcdc"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+		
+		<div class="option_name">赔付额度：</div>
+		<input type="hidden" id="huahen_insurance_peifu_index" value="0"/>
+		<div id="huahen_insurance_peifu_label" class="option_btn" onclick="selectHuahenPeifu()">2千</div>
+	</div>
+	
+	<div class="classify_item">其他费用
+		<div class="subtotal_label">小计：</div>
+		<div class="subtotal_value" id="other_subtotal_label">0 元</div>
+	</div>
+	<div class="cost_item">
+		<input type="checkbox" class="cost_checkbox" id="other_checkbox" onchange="calculateTotalCost()"/>
+		<div class="cost_name">车其他费用：</div>
+		<input class="cost_value_input" type="number" id="other_cost" placeholder="" value="0" onkeyup="onInputCostValue()"/>
+		<div class="cost_unit">元</div>
+		<div class="cost_memo">?</div>
+	</div>
+	<div class="divider"></div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript" src="../../script/carchat_insurance_functions.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		 // 重新设置各个子费用项
+		 updateSubcost();
+		 // 计算总值
+		 calculateTotalCost(); // 计算一次总值
+		
+	};
+	
+	function onClickItem(id){
+	
+		var page_info = {'id': id};
+		
+		var x = api.winWidth * 0.05;
+		var y = 55;//api.winHeight * 0.05; 
+		var w = api.winWidth * 0.9;
+		var h = api.winHeight * 0.6;
+		
+		api.openFrame({
+	        name: 'frame_emergency_knowledge_detail',
+	        url: 'emergency_knowledge_detail.html',
+	        rect: {
+		        'x':x,
+		        'y':y,
+		        'w':w,
+		        'h':h
+	        },
+	        bounces:false,
+	        pageParam: page_info
+        });
+	}
+	
+	function selectOption(title, items, label_div_id, index_input_id){
+		// 选择发动机容量
+		
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: title,
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(200,200,200)',
+	             color: '#404040',
+	             size: 15,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(0,0,150)',
+	             bgHighlight: 'rgb(0,0,150)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: items
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight" && ret.items.length == 1){
+		     		var label_div = $api.byId(label_div_id);
+		     		var index_input = $api.byId(index_input_id);
+		     		label_div.innerText = ret.items[0].text; // 单选，只回传一个Item
+		     		index_input.value = ret.items[0].index;
+		     		
+		     		// 重新设置各个子费用项
+		     		updateSubcost();
+		     		// 计算总值
+		     		calculateTotalCost();
+		     		
+		     		UIMultiSelector.close();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.close();
+		     	}
+		     
+		         //alert(JSON.stringify(ret));
+		     } else {
+		         //alert(JSON.stringify(err));
+		     }
+		 });
+	}
+	
+	function selectGeneratorCapacity(){
+		
+		var label_div_id = 'generator_capacity';
+	    var index_input_id = 'capacity_index';
+	    var title = '发动机排量';
+		
+		var items = [{text: '1.0L（含）以下', status: 'normal', index:0}, 
+	             {text: '1.0-1.6L（含）', status: 'normal', index:1},
+	             {text: '1.6-2.0L(含）', status: 'normal', index:2},
+	             {text: '2.0-2.5L（含）', status: 'normal', index:3},
+	             {text: '2.5-3.0L（含）', status: 'normal', index:4},
+	             {text: '3.0-4.0L（含）', status: 'normal', index:5},
+	             {text: '4.0L 以上', status: 'normal', index:6}
+	     		];
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     
+	     // 弹出选项菜单
+	     selectOption(title, items, label_div_id, index_input_id);
+	     
+	}
+	
+	function selectSeatAmount(){
+		var items = [{text: '家用6座以下', status: 'normal', index:0}, 
+	             {text: '家用6座及以上', status: 'normal', index:1}
+	     		];
+	     var label_div_id = 'seat_amount';
+	     var index_input_id = 'seat_amount_index';
+	     var title = '座位数量';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	     
+	     
+	}
+	
+	function selectProducePlace(){
+		var items = [{text: '国产', status: 'normal', index:0}, 
+	                 {text: '进口', status: 'normal', index:1}
+	     			];
+	     var label_div_id = 'produce_place_label';
+	     var index_input_id = 'produce_place_index';
+	     var title = '车辆产地';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	
+	}
+	
+	function selectSanzhePeifu(){
+		// 选择第三者责任险的赔付额度
+		var items = [{text: '5万', status: 'normal', index:0}, 
+	                 {text: '10万', status: 'normal', index:1},
+	                 {text: '20万', status: 'normal', index:2},
+	                 {text: '50万', status: 'normal', index:3},
+	                 {text: '100万', status: 'normal', index:4}
+	     			];
+	     var label_div_id = 'sanzhe_insurance_peifu_label';
+	     var index_input_id = 'sanzhe_peifu_index';
+	     var title = '赔付额度';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+	
+	function selectPersonCount(){
+		// 选择投保人数
+		var items = [{text: '1人', status: 'normal', index:0}, 
+	                 {text: '2人', status: 'normal', index:1},
+	                 {text: '3人', status: 'normal', index:2},
+	                 {text: '4人', status: 'normal', index:3},
+	                 {text: '5人', status: 'normal', index:4}
+	     			];
+	     var label_div_id = 'person_count_label';
+	     var index_input_id = 'person_count_index';
+	     var title = '投保人数';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+	
+	
+	function selectHuahenPeifu(){
+		// 选择划痕赔付额度
+		var items = [{text: '2千', status: 'normal', index:0}, 
+	                 {text: '5千', status: 'normal', index:1},
+	                 {text: '1万', status: 'normal', index:2},
+	                 {text: '2万', status: 'normal', index:3}
+	     			];
+	     var label_div_id = 'huahen_insurance_peifu_label';
+	     var index_input_id = 'huahen_insurance_peifu_index';
+	     var title = '划痕赔付额度';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+
+	
+	function calculateTotalCost(){
+		// 计算总费用
+		
+		// 车身价格
+		var car_price = getInputValue('carprice');
+
+		// 获取购置税
+		var gouzhishui_val = getInputValue('gouzhishui_cost');
+		
+		// 获取上牌费用
+		var shangpaifei_val = getInputValue('shangpai_cost');
+		
+		// 获取车船使用税
+		var shiyongshui_val = getInputValue('shiyongshui_cost');
+		
+		// 获取强制保险
+		var qiangxian_val = getInputValue('qiangxian_cost'); 
+		
+		// ===============
+		// 合计必要费用
+		var required_val = gouzhishui_val + shangpaifei_val + shiyongshui_val + qiangxian_val;
+		// 显示必要费用小计
+		var required_label = $api.byId('required_subtotal_label');
+		
+		required_label.innerText = required_val.toFixed(2) + " 元";
+		//================
+		
+		
+		// 商业保险 
+		var insurance_names = ["sanzhe", "sunshi", "daoqiang", "renyuan", "mianpei", "boli", "ziran", "fadongji", "huahen"];
+		var len = insurance_names.length;
+		var in_name;
+		var in_value;
+		var in_subtotal_value = 0; // 商业保险的总费用
+		for(var i = 0; i < len; i++){
+			in_name = insurance_names[i];
+			var chkbox = $api.byId(in_name + "_checkbox");
+			if(chkbox == null) continue;
+			
+			
+			in_value = 0; // 默认是 0
+			if(chkbox.checked){ // 选中该保险项
+				if(in_name == 'huahen'){ // 如果是划痕，则车辆损失险也必须先投保
+					sunshi_chkbox = $api.byId(insurance_names[1] + "_checkbox");
+					if(sunshi_chkbox.checked){
+						in_value = getInputValue(in_name + "_cost"); // 所输入的值
+					}
+				}
+				else{
+					in_value = getInputValue(in_name + "_cost"); // 所输入的值
+				}
+			}
+			
+			// 累加
+			in_subtotal_value += in_value;
+		} 	
+		
+		// 显示小计值
+		var insurance_label = $api.byId('insurance_subtotal_label');
+		insurance_label.innerText = in_subtotal_value.toFixed(2) + " 元";
+
+		// 其他费用 =====================================================
+		var other_subtotal_value = 0;
+		var other_chkbox = $api.byId("other_checkbox");
+		if(other_chkbox.checked){
+			other_subtotal_value = getInputValue("other_cost");
+		}
+		var other_label = $api.byId("other_subtotal_label");
+		other_label.innerText = other_subtotal_value.toFixed(2) + " 元";
+		
+		
+		
+		//////////////////////////////////////
+		// 更新顶部的显示值：总费用，各项分费用
+		var total_cost = car_price + required_val + in_subtotal_value + other_subtotal_value;
+		
+		var tool_info = api.pageParam;
+		var win_name = tool_info.win_name;
+		
+		
+		api.execScript({
+			name:win_name,
+	        script: 'displayCost(' + car_price + ', ' + required_val + ', ' + in_subtotal_value + ', ' + other_subtotal_value + ');'
+        });
+
+	}
+	
+	function updateSubcost(){
+		// 根据车身价格，排量、座位数、产地等，更新每项费用
+		
+		// 车身总价, 裸车价格
+		var car_cost_val = getInputValue('carprice');
+		
+		// 发动机排量, 0 -6, ~1.0-1.6-2.0-2.5-3.0-4.0~
+		var capacity_index = getInputValue('capacity_index'); 
+		
+		// 座位数量:0：6座以下, 1： 6座以上
+		var seat_count = getInputValue('seat_amount_index');
+		
+		// 产地: 0: 国产， 1：进口
+		var produce_place_index = getInputValue('produce_place_index');
+		
+		// 根据车身价格，设定车辆购置税，按税费7.5%
+		var gouzhishui_cost = (car_cost_val / 1.17) * 0.075;
+		setInputValue('gouzhishui_cost', gouzhishui_cost);
+		
+		// 上牌费，商家代办为500元
+		//var shangpai_cost = 500;
+		//setInputValue('shangpai_cost', 500);
+		
+		// 车船使用税，以北京为例
+		var shiyongshui_cost = calculateShiyongshui(capacity_index);
+		setInputValue('shiyongshui_cost', shiyongshui_cost);
+		
+		// 强制保险, 
+		var qiangzhi_cost = calculateQiangzhibaoxiang(seat_count);
+		setInputValue('qiangxian_cost', qiangzhi_cost);
+		
+		// 第三者责任险
+		var peifu_index = getInputValue('sanzhe_peifu_index');
+		var sanzhebaofei = getSanzheBaofei(seat_count, peifu_index);
+		setInputValue('sanzhe_cost', sanzhebaofei);
+		
+		// 车辆损失费
+		var sunshibaofei = getSunshiBaofei(seat_count, car_cost_val);
+		setInputValue('sunshi_cost', sunshibaofei);
+		
+		// 全车盗抢险
+		var daoqiangbaofei = getDaoqiangBaofei(seat_count, car_cost_val);
+		setInputValue('daoqiang_cost', daoqiangbaofei);
+		
+		// 获取车上人员险保费
+		var person_count_index = getInputValue('person_count_index');
+		var person_baofei = getCheshangRenyuanBaofei(person_count_index);
+		setInputValue('renyuan_cost', person_baofei);
+		
+		// 获取不计免赔险保费
+		var mianpei_baofei = (sanzhebaofei + sunshibaofei) * 0.2;
+		setInputValue('mianpei_cost', mianpei_baofei);
+		
+		// 玻璃破碎险
+		var chandi_index = getInputValue('produce_place_index'); // 车辆产地
+		var boli_baofei = getBoliPosuiBaofei(chandi_index, car_cost_val);
+		setInputValue('boli_cost',  boli_baofei);
+		
+		// 自燃损失险保费
+		var ziran_baofei = car_cost_val * 0.0015;// 0.15%
+		setInputValue('ziran_cost', ziran_baofei);
+		
+		// 获取发动机损失险
+		var fadongji_baofei = sunshibaofei * 0.05; // 车辆损失险 * 5%
+		setInputValue('fadongji_cost', fadongji_baofei);
+		
+		// 获取划痕险保费
+		var huahen_peifu_index = getInputValue('huahen_insurance_peifu_index');
+		var huahen_baofei = getHuahenBaofei(huahen_peifu_index);
+		setInputValue('huahen_cost', huahen_baofei);
+	}
+	
+	function onInputCostValue(){
+		// 在输入车辆价格、其他费用等时，自动重新计算各项值
+		
+		updateSubcost();
+		
+		calculateTotalCost();
+	}
+</script>
+</html>

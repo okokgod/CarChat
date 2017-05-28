@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					
+					<span id="title"></span>
+				</div>
+				<div id="index_panel" class="auto_brand_index_panel">
+					<div class="index_btn1" onclick="loadBrands('ABCD')">A B C D</div>
+					<div class="index_btn2" onclick="loadBrands('FGHJ')">F G H J</div>
+					<div class="index_btn3" onclick="loadBrands('KLMN')">K L M N</div>
+					<div class="index_btn4" onclick="loadBrands('OPQR')">O P Q R</div>
+					<div class="index_btn5" onclick="loadBrands('STW')">S T W</div>
+					<div class="index_btn6" onclick="loadBrands('XYZ')">X Y Z</div>
+				</div>
+		<div id="main" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		
+		// 工具页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title;
+		var tool_frame_name = tool_info.frame_name;
+		var tool_frame_url = tool_info.frame_url;
+		
+		$api.byId('title').innerText = tool_title;
+	
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight + $api.byId("index_panel").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("main").offsetHeight
+	        },
+	        bounces:false
+        });
+	};
+	
+	function loadBrands(first_letters){
+		// 加载汽车品牌列表
+		var tool_info = api.pageParam;
+		var win_name = tool_info.win_name;
+		var tool_frame_name = tool_info.frame_name;
+		
+		api.execScript({
+			name: win_name,
+			frameName: tool_frame_name,
+	        script: 'load_auto_brand_list(\'' + first_letters + '\');'
+        });
+	}
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+
+</script>
+</html>

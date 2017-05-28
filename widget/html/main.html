@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>车信</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/carchat.css"/>
+    <style>
+        header{ background-color: #f2f2f2}
+        header ul li { height: 45px; line-height: 45px; text-align: center; display: none; color: #323237; position: relative;font-size: 18px;  }
+        header ul li.active{ display: block; }
+        #footer{  background-color: #f2f2f2; }
+        #footer ul li{  padding-top: 36px; padding-bottom: 4px; background: url() no-repeat center 2px; background-size: auto 30px; text-align: center; }
+        #footer ul li.active{ color: #6ab494; }
+        #footer ul li:nth-child(1){ background-image: url(../image/bottombtn0101.png); }
+        #footer ul li:nth-child(2){ background-image: url(../image/bottombtn0201.png); }
+        #footer ul li:nth-child(3){ background-image: url(../image/bottombtn0301.png); }
+        #footer ul li:nth-child(4){ background-image: url(../image/bottombtn0401.png); }
+        #footer ul li:nth-child(5){ background-image: url(../image/bottombtn0401.png); }
+        #footer ul li:nth-child(1).active{ background-image: url(../image/bottombtn0102.png); }
+        #footer ul li:nth-child(2).active{ background-image: url(../image/bottombtn0202.png); }
+        #footer ul li:nth-child(3).active{ background-image: url(../image/bottombtn0302.png); }
+        #footer ul li:nth-child(4).active{ background-image: url(../image/bottombtn0402.png); }
+        #footer ul li:nth-child(5).active{ background-image: url(../image/bottombtn0402.png); }
+    </style>
+</head>
+<body>
+
+<div id="wrap" class="flex-wrap flex-vertical">
+    <header>
+        <ul>
+            <li class="border-b active" >
+            	<div class="carchat_header">常用工具
+					
+				</div>
+            </li>
+            <li class="border-b" >
+            	<div class="carchat_header">车
+					<div class="right" onclick="addCar()"><img src="../image/add.png"></div>
+				</div>
+            </li>
+            <li class="border-b" >
+            	<div class="carchat_header">汽车服务
+            		<div class="right"><img src="../image/more.png"></div>
+            	</div>
+            </li>
+            <li class="border-b" >
+            	<div class="carchat_header">消息
+            		<div class="right"><img src="../image/more.png"></div>
+            	</div>
+            </li>
+            <li class="border-b" >
+            	<div class="carchat_header">我
+            		<div class="right"><img src="../image/more.png"></div>
+            	</div>
+            </li>
+        </ul>
+    </header>
+    
+    <div id="main" class="flex-con">
+
+    </div>
+    <div id="footer" class="border-t">
+        <ul class="flex-wrap" >
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con active" >工具</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >车</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >服务</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >消息</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >我</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    apiready = function () {
+        
+        /* android 4.5 以上需要注释
+        $api.fixStatusBar( $api.dom('header') );
+        api.setStatusBarStyle({
+            style: 'dark',
+            color: '#6ab494'
+        });
+        */
+       
+        funIniGroup();
+        
+        // 监听退出按钮
+        api.addEventListener({
+	        name:'keyback'
+        },function(ret,err){
+        	//coding...
+        	api.closeWidget({
+	            id: 'A6919242691020'
+            });
+        });
+        
+        // 先隐藏常用工具栏
+        //tool_p = $api.byId('tool_panel');
+        //tool_p.style.display = 'none';
+    }
+
+    function funIniGroup(){
+        var frame_names = ['frame_tool', 'frame_car', 'frame_service', 'frame_message', 'frame_me'];
+        var frame_name, frame_url;
+                
+        var eHeaderLis = $api.domAll('header li'),
+            frames = [];
+        for (var i = 0,len = eHeaderLis.length; i < len; i++) {
+        	
+        	frame_name = frame_names[i];
+        	frame_url = frame_name + '.html';
+        	frames.push( { 
+	                    name: frame_name, //'frame'+i, 
+	                    url: frame_url, // 'frame'+i+'.html', 
+	                    bgColor : 'rgba(0,0,0,.2)',
+	                    bounces:true
+	                } );
+        	/*
+        		if(i == 0){ // 车frame：不弹跳，不显示垂直滚动条
+	                frames.push( { 
+	                    name: frame_name, 
+	                    url: frame_url, // 'frame'+i+'.html', 
+	                    bgColor : 'rgba(0,0,0,.2)',
+	                    bounces:false,
+	                    vScrollBarEnabled:false
+	                } )
+                }
+                else{
+                	frames.push( { 
+	                    name: frame_name, //'frame'+i, 
+	                    url: frame_url, // 'frame'+i+'.html', 
+	                    bgColor : 'rgba(0,0,0,.2)',
+	                    bounces:true
+	                } )
+                }*/
+        }
+        api.openFrameGroup({
+            name: 'group',
+            scrollEnabled: false,
+            rect: {
+                x: 0, 
+                y: $api.dom('header').offsetHeight, 
+                w: api.winWidth, 
+                h: $api.dom('#main').offsetHeight
+            },
+            index: 0,
+            frames: frames
+        }, function (ret, err) {
+
+        });
+    }
+
+    // 随意切换按钮
+    function randomSwitchBtn( tag ) {
+        if( tag == $api.dom('#footer li.active') )return;
+        var eFootLis = $api.domAll('#footer li'),
+            eHeaderLis = $api.domAll('header li'),
+            index = 0;
+        for (var i = 0,len = eFootLis.length; i < len; i++) {
+            if( tag == eFootLis[i] ){
+                index = i;
+            }else{
+                $api.removeCls(eFootLis[i], 'active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        }
+        
+        if(index == 0){ // 如果是车的frame，则显示我的车列表的frame
+        	api.setFrameAttr({
+	            name: 'my_car_list',
+	            hidden:false
+            });
+        }
+        else{
+        	api.setFrameAttr({
+	            name: 'my_car_list',
+	            hidden:true
+            });
+        }
+        
+        $api.addCls( eFootLis[index], 'active');
+        $api.addCls( eHeaderLis[index], 'active');
+        api.setFrameGroupIndex({
+            name: 'group',
+            index: index
+        });
+    }
+    
+    //==============================================================
+    //
+    function addCar(){
+    	// 打开添加车辆的菜单：我的车辆，朋友的车辆
+    	/*
+    	api.openWin({
+	        name: 'addcar',
+	        url: 'addcar/add_car.html',
+	        rect:{x:0,y:0,w:'auto',h:'auto'},
+	        bounces:false
+	        //delay:200
+        });
+        */
+       
+        var menu_items = [{title:'我的车辆', icon:'widget://image/addcar.png'}, {title:'朋友的车辆', icon:'widget://image/addcar.png'}];
+        
+        var w = 150;
+        var h = 100;
+        var x = api.winWidth - 10;
+        var y = $api.dom('header').offsetHeight + 15;
+        
+        
+        var mnPopups = api.require('MNPopups');
+		mnPopups.open({
+		    rect: {
+		        w: w,
+		        h: h
+		    },
+		    position: {       
+		        x: x, 
+		        y: y      
+		    },
+		    styles: {
+		        mask: 'rgba(0,0,0,0)',
+		        bg: '#404040',                        
+		        cell: {                            
+		            bg:{
+		                normal: '',              
+		                highlight: ''            
+		            },                   
+		            h: 45,                         
+		            title: {                      
+		                marginL: 45,               
+		                color: '#FFFFFF',          
+		                size: 16,                 
+		            },
+		            icon: {                        
+		                marginL: 10,               
+		                w: 25,                     
+		                h: 25,                     
+		                corner: 2                  
+		            }
+		        }
+		    },
+		    datas: menu_items,
+		    animation: true,
+		    pointer: {
+	            size: 1,                     
+	            xPercent: 90,                
+	            yPercent: 0,                 
+	            orientation: 'downward'
+        	}
+		}, function(ret) {
+		    if (ret) {
+               // ret: {index:1, eventType:click}
+               if(ret.eventType == 'click'){
+               		
+               		if(ret.index == 0){ // 添加我的车辆
+               			api.openWin({
+					        name: 'addcar',
+					        url: 'addcar/add_my_car.html',
+					        rect:{x:0,y:0,w:'auto',h:'auto'},
+					        bounces:false
+					        //delay:200
+				        });
+               		}
+               		else if(ret.index == 1){ // 关注朋友的车辆
+               			api.openWin({
+					        name: 'add_friend_car',
+					        url: 'addcar/add_friend_car.html',
+					        rect:{x:0,y:0,w:'auto',h:'auto'},
+					        bounces:false
+					        //delay:200
+				        });
+               		}
+               }
+		    }
+		});
+        
+        
+    }
+</script>

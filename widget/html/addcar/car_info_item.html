@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.divider {height: 15px;}
+    	input {height: 50px;font-size: 16px;color: #8E8C8C;width: 100%;outline: none;}
+		input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+	<div>
+		<form>
+			<div class="carchat_input_item"><input type="text" id="carmark" placeholder="车牌号  [必填]"/></div>
+			<div class="carchat_input_item">
+				
+				<input type="hidden" id="series_id"/>
+				<input type="text" id="brand_name" placeholder="品牌 车系 [必填]" readonly="readonly" onclick="selectCarBrand()"/>
+			</div>
+			<div class="carchat_input_item">
+				<input type="hidden" id="model_id"/>
+				<input type="text" id="model_name" placeholder="车型  [必填]" readonly="readonly" onclick="selectCarModel()"/>
+			</div>
+			<div class="carchat_input_item">
+				<input type="text" id="producedat" placeholder="生产日期 [yyyy-mm-dd] [必填]" readonly="readonly" onclick="selectProducedDate()"/>
+			</div>
+			<div class="carchat_input_item">
+				<input type="text" id="boughtat" placeholder="购买日期 [yyyy-mm-dd] [必填]" readonly="readonly" onclick="selectBoughtDate()"/>
+			</div>
+			<div class="carchat_input_item"><input type="number" id="carprice" placeholder="车身价格"/></div>
+			<div class="carchat_input_item"><input type="text" id="dealer" placeholder="经销商"/></div>
+			<div class="carchat_input_item"><input type="text" id="phone" placeholder="挪车电话"/></div>
+			
+		</form>	
+	
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var uId = $api.getStorage("uid");
+    
+    var _brand_model_string = null;
+    var _brandPicker = null;
+    var _selected_brand_series_index = null;// 选中的汽车品牌及车系Index
+    var _selected_model_index = null;
+    
+	apiready = function(){
+		
+	};
+	
+	function selectCarBrand(){
+		// 打开选择汽车品牌的页面
+		
+		api.openWin({
+	        name: 'car_brand_selector',
+	        url: 'car_brand_selector.html',
+	        rect:{x:0,y:0,w:'auto',h:'auto'},
+	        bounces:false,
+	        pageParam:_selected_brand_series_index
+	        //delay:1000
+	        //showProgress:true,
+	        //progress:{type:'default'}
+        });
+	}
+	
+	
+			
+	function selectCarModel(){
+		// 选择车型
+		//var brand_id = $api.byId("brand_id").value;
+		
+		var brand_series_name = $api.byId("brand_name").value; // 福特 - 福克斯
+		var series_id = $api.byId("series_id").value;
+		//alert(brand_series_name + series_id + brand_id);
+		if(brand_series_name == "" || series_id == ""){
+			api.toast({
+	            msg:'请先选择汽车品牌及车系。',
+	            location:'middle',
+	            duration:1500
+            });
+            return;
+		}
+		
+		
+			api.openWin({
+		        name: 'car_model_selector',
+		        url: 'car_model_selector.html',
+		        rect:{x:0,y:0,w:'auto',h:'auto'},
+		        bounces:false,
+		        //delay:200,
+		        pageParam:{"brand_series_name":brand_series_name, "series_id":series_id}
+	        });
+       
+	}
+	
+	function setCarBrandName(brand_info){
+		// brand_info: {'id':, 'cnname':}
+		//api.toast({
+	    //    msg:brand_info.name + "   " + brand_info.cnname
+        //});
+        
+		$api.byId("brand_id").value = brand_info.id;
+		$api.byId("brand_name").value = brand_info.cnname;
+	}
+	
+	function setCarModelName(model_info){
+		// model_info: {"id": , "name": }
+		$api.byId("model_id").value = model_info.id;
+		$api.byId("model_name").value = model_info.name;
+	}
+	
+	
+	
+	function setCarBrandAndModelInfo(json1, json2, json3){
+		// [{value:{id:1, name:F}, index:1}, {value:{id:4, en_name:Ford, name:福特}, index:1}, {value:{id:1, en_name:Mondeo, name:蒙迪欧}}]
+		
+		api.closeWin({
+			name:'car_brand_selector'
+        });
+        
+        var brand_name = json2.value.name; // 汽车品牌名称
+		var series_name = json3.value.name; // 车系名称
+		var series_id = json3.value.id; // 车系编号
+		
+		$api.byId("series_id").value = series_id;
+		$api.byId("brand_name").value = brand_name + " - " + series_name;
+        
+		// 保存当前选中的Index
+		_selected_brand_series_index = [json1.index, json2.index, json3.index];
+	}
+	
+	
+	function selectBoughtDate(){
+		// 选中购买日期
+		api.openPicker({
+	        type:'date',
+	        title:'选择购买日期'
+        },function(ret,err){
+        	if(ret){
+        		var date_str = ret.year + "-" + ret.month + "-" + ret.day;
+        		$api.byId("boughtat").value = date_str;
+        	}
+        });
+	}
+	
+	function selectProducedDate(){
+		// 选择生成日期
+		api.openPicker({
+	        type:'date',
+	        title:'选择生产日期'
+        },function(ret,err){
+        	if(ret){
+        		var date_str = ret.year + "-" + ret.month + "-" + ret.day;
+        		$api.byId("producedat").value = date_str;
+        	}
+        });
+	}
+	
+	function save(){
+		// 保存输入
+		
+		var car_mark = $api.byId("carmark").value;
+		var brand = $api.byId("brand_name").value;
+		var car_model = $api.byId("model_name").value;
+		var car_model_id = $api.byId("model_id").value;
+		var producedAt = $api.byId("producedat").value;
+		var car_price = $api.byId("carprice").value;
+		var dealer = $api.byId("dealer").value;
+		var boughtat = $api.byId("boughtat").value;
+		var phone = $api.byId("phone").value;
+		
+		// 去掉空格
+		if(car_mark) car_mark = $api.trim(car_mark);
+		if(brand) brand = $api.trim(brand);
+		if(car_model) car_model = $api.trim(car_model);
+		if(producedAt) producedAt = $api.trim(producedAt);
+		if(car_price) car_price = $api.trim(car_price);
+		if(dealer) dealer = $api.trim(dealer);
+		if(boughtat) boughtat = $api.trim(boughtat);
+		if(phone) phone = $api.trim(phone);
+		
+		// 判断必填字段
+		if(car_mark == ""){api.toast({msg:'请输入车牌号',location:'middle'}); return;}
+		if(brand == ""){api.toast({msg:'请输入车辆品牌',location:'middle'}); return;}
+		if(car_model == ""){api.toast({msg:'请输入车型',location:'middle'}); return;}
+		if(producedAt == ""){api.toast({msg:'请输入生产日期',location:'middle'}); return;}
+		if(boughtat == ""){api.toast({msg:'请输入购买日期',location:'middle'}); return;}
+		
+		car_mark = car_mark.toUpperCase(); // 车牌号统一用大写
+		
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        
+	
+		var data = {values:{"user_id":uId,
+		    "car_mark":car_mark, 
+			"car_model_id":car_model_id, 
+			"produced_date":producedAt, 
+			"car_price":car_price,
+			"dealer":dealer,
+			"bought_date":boughtat,
+			"phone":phone}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/car',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	
+        	api.hideProgress();// 关闭进度提示
+        	
+        	if(ret != null){
+        		// ret: [car_id, relation_id]
+        			
+        			var car_id = ret[0];
+        			
+        			/*
+        			api.alert({
+        				msg:JSON.stringify(ret)
+                    },function(ret,err){
+                    	//coding...
+                    });
+        			*/
+        			
+        			api.execScript({
+        				name:'main',
+        				frameName:'my_car_list',
+	                    script: 'loadUserOneCar(' + car_id + ');'
+                    });
+        		        		
+        			api.toast({
+	                        msg:'添加新车辆成功。',
+	                        location:'middle',
+	                        duration:1500
+                    });
+             		
+             		// 2秒后返回我的车辆页面
+             		setTimeout(function(){
+	        			api.closeWin({
+	        				name:'addcar'
+                        });
+        			}, 1500);
+        	}
+        	else{
+        		
+        		api.toast({
+	                        msg:'添加新车辆失败。',
+	                        location:'middle',
+	                        duration:1500
+                });
+                
+        	}
+        });
+	
+		
+	}
+	
+	function addUserCarRelation(user_id, car_id, relation_type){
+		// 增加用户和车的关联
+		
+		var data = {values:{"user_id":user_id, "car_id":car_id, "relation_type":relation_type}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/user_car_relation',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	
+        		api.hideProgress(); // 关闭进度提示
+        	
+        });
+	}
+</script>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    
+    
+    input {height: 50px;font-size: 18px;color: #8E8C8C;width: 80%;outline: none;}
+	input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+
+	<div class="input_err_msg" id="input_err_msg"></div>
+	<form action="">
+			<div class="carchat_input_item"><input type="text" placeholder="账号名 [必填]" id="username"/></div>
+			<div class="carchat_input_item"><input type="password" placeholder="密码 [必填]" id="password"/></div>
+			<div class="carchat_input_item"><input type="password" placeholder="确认密码 [必填]" id="confirm_password"/></div>
+			<div class="carchat_input_item"><input type="text" placeholder="昵称" id="nicename"/></div>
+			<div class="carchat_input_item"><input type="text" placeholder="邮箱" id="email"/></div>
+			<div class="carchat_input_item"><input type="number" placeholder="手机号" id="mobile"/></div>
+		
+			<div class="carchat_btn" onclick="newUser()" tapmode="submit-hover"><span type="submit">创建</span></div>
+		
+	</form>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/SHA1.js"></script>
+<script type="text/javascript" src="../script/APICloud-rest.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+
+	};
+	
+	
+	function createAccount(){
+		// 创建新用户
+		
+		var username = $api.byId('username').value;
+		var password1 = $api.byId('password').value;
+		var password2 = $api.byId('confirm_password').value;
+ 		var nicename = $api.byId('nicename').value;
+		var email = $api.byId('email').value;
+		var mobile = $api.byId('mobile').value;
+		
+		if(username) username = $api.trim(username);
+		if(password1) password1 = $api.trim(password1);
+		if(password2) password2 = $api.trim(password2);
+		if(nicename) nicename = $api.trim(nicename);
+		if(email) email = $api.trim(email);
+		if(mobile) mobile = $api.trim(mobile);
+		
+		if(username == ""){api.toast({msg:'请输入账号名称',location:'middle'}); return;}//{input_err_msg.innerText = "请输入登录名称";return;}
+		if(password1 == ""){api.toast({msg:'请输入密码',location:'middle'}); return;}//{input_err_msg.innerText = "请输入密码";return;}
+		if(password2 == ""){api.toast({msg:'请输入确认密码',location:'middle'}); return;}//{input_err_msg.innerText = "请输入确认密码";return;}
+		if(password1 != password2){api.toast({msg:'确认密码不正确',location:'middle'}); return;}//{input_err_msg.innerText = "确认密码不正确";return;}
+		
+		
+		var data = {'values': {'username':username, 'password':password1, 'nicename':nicename, 'email':email, 'mobile':mobile}};
+		
+		var appId = $api.getStorage("appId");
+    	var appKey = $api.getStorage("appKey");
+		//var now = Date.now();
+		//var appKey = SHA1("A6919242691020"+"UZ"+"ABC24BC7-7D95-5157-1A9A-F38021F7F250"+"UZ"+now)+"."+now;
+		
+		//userIsExisted(username);
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'创建新账号',
+			text:'请稍候...',
+			modal:true
+        });
+		
+		api.ajax({
+	        "url":'https://d.apicloud.com/mcm/api/user',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	
+        	// 关闭进度提示
+        	api.hideProgress();
+        	
+        	if(ret){
+        	
+        		// 判断是否有错误信息
+        		if(ret.error != null){ // 有错误
+        			var errors = ret.error;
+        			var error_code = errors.status;
+        			if(error_code == "202"){
+        				// 用户名已经存在
+        				api.toast({
+	                        msg:'账号名已经存在。',
+	                        location:'middle'
+                        });
+        			}
+             	}
+             	else{
+             		// 创建成功，关闭当前窗口，返回登录页面
+             		
+             		api.toast({
+	                        msg:'创建新账号成功，请返回登录。',
+	                        location:'middle',
+	                        duration:1500
+                    });
+             		
+             		// 2秒后返回登录页面
+             		setTimeout(function(){
+	        			api.closeWin({name:"register"
+                        });
+        			}, 2000);
+             		
+             	}
+        	}
+        	else{
+        		input_err_msg.innerText = JSON.stringify(err);
+        	}
+        	
+        });
+	}
+	   
+	function userIsExisted(username){
+		// 判断一个用户Id是否已经存在
+		var filter = {'where':{'username':username}};
+		
+		//var appId = $api.getStorage("appId");
+    	//var appKey = $api.getStorage("appKey");
+    	
+    	var appId = "A6919242691020";
+    	var now = Date.now();
+		var appKey = SHA1(appId+"UZ"+"ABC24BC7-7D95-5157-1A9A-F38021F7F250"+"UZ"+now)+"."+now;
+    	
+    	api.alert({
+    		msg: appId + " --- " + appKey
+        },function(ret,err){
+        	//coding...
+        });
+    	
+    	
+    	/*
+    	var client = new Resource(appId, appKey);
+    	var User = client.Factory("user");
+    	User.query({"filter":{"where":{"username":"ou7"}}}, 
+    		function(ret, err){
+    			api.alert({
+    				msg:ret
+                },function(ret,err){
+                	//coding...
+                });
+    		}
+    	);
+    	*/
+    	
+    	var filter = {"where":{"username":username}};
+    	api.ajax({
+	        "url":'https://d.apicloud.com/mcm/api/user?filter=' + encodeURIComponent(JSON.stringify(filter)),
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){
+        		api.alert({
+        			msg:JSON.stringify(ret)
+                },function(ret,err){
+                	//coding...
+                });
+        	}
+        	else{
+        		api.alert({
+        			msg:JSON.stringify(err)
+                },function(ret,err){
+                	//coding...
+                });
+        	}
+        	
+        });
+        
+	}
+</script>
+</html>

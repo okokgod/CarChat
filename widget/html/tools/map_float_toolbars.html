@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	html, body{
+    		background-color:transparent
+    	}
+    </style>
+</head>
+<body>
+	
+	<div class="car_map_lukuang_btn" id="redgree_btn" style="background-image:url(../../image/red-gree1.png)" onclick="clickRedGreeBtn()"></div>
+	<!--
+	<img class="car_map_lukuang_btn" id="redgree_btn" src=""/>
+	-->
+	<div class="car_map_zoomin_btn" id="zoomin_btn" onclick="doZoomIn()"></div>
+	<div class="car_map_zoomout_btn" id="zoomout_btn" onclick="doZoomOut()"></div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+    var red_gree_flag; // 1 显示实时路况，0 不显示
+    
+	apiready = function(){
+		red_gree_flag = 1;
+	};
+	
+	function clickRedGreeBtn(){
+		// 切换是否显示实时路况
+		
+		var btn = $api.byId('redgree_btn');
+		
+        
+		if(red_gree_flag == 1){ // 不显示实时路况
+			btn.style.backgroundImage = "url(../../image/red-gree2.png)";
+			red_gree_flag = 0;
+			
+		}
+		else{ // 显示实时路况
+			btn.style.backgroundImage = "url(../../image/red-gree1.png)";
+			red_gree_flag = 1;
+			
+		}
+		setTraffic(red_gree_flag);
+	}
+	
+	function setTraffic(flag){
+		var tool_info = api.pageParam;
+		var win_name = tool_info.win_name;
+		
+		api.execScript({
+			name:win_name,
+			//frameName: api.frameName,
+	        script: 'setTraffic(' + flag + ');'
+        });
+	}
+	
+	function doZoomIn(){
+		//放大
+		var tool_info = api.pageParam;
+		var win_name = tool_info.win_name;
+		
+		api.execScript({
+			name:win_name,
+			//frameName: api.frameName,
+	        script: 'zoomIn();'
+        });
+	}
+	
+	function doZoomOut(){
+		// 缩小
+		var tool_info = api.pageParam;
+		var win_name = tool_info.win_name;
+		
+		api.execScript({
+			name:win_name,
+	        script: 'zoomOut();'
+        });
+	}
+
+</script>
+</html>

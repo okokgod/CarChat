@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>车</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/carchat.css"/>
+    <style>
+        .empty{ text-align: center; padding: 120px 0; }
+    </style>
+</head>
+<body>
+    <div id="wrap" class="flex-wrap flex-vertical">
+		<div id="car_list" class="flex-con" style="background-color: #BCBCBC"></div>
+	</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/carchat.js"></script>
+<script type="text/javascript">
+
+	apiready = function(){
+		// 打开我的车列表frame
+		api.openFrame({
+	        name: 'my_car_list',
+	        url: 'my_car_list_frame.html',
+	        rect: {
+		        x:0,
+		        y: p.offsetHeight + 50,
+		        w:api.winWidth,
+		        h:$api.byId("my_car_list").offsetHeight - 5
+	        },
+	        bounces:true
+        });
+	}
+</script>
+</html>

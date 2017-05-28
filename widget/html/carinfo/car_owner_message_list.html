@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	
+    	input {height: 50px;font-size: 16px;color: #8E8C8C;width: 100%;outline: none;}
+		input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+    // 记录个数
+    var existed_record_count = 0;
+    
+    var field_item_gap = 8;
+    var field_item_height = 15;
+    
+    // 删除按钮的样式
+    var delete_btn_style = "right: 5px;  top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF";
+        		
+    var existed_message_count = 0; // 记录下消息的个数
+    
+	apiready = function(){
+	
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 标题名称， 中文
+		//var tool_frame_name = tool_info.frame_name;
+		//var tool_frame_file = tool_info.frame_file;
+		var function_name = tool_info.function_name; 
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+
+				
+		//var data = {values:{"too_car_id":car_id, "function_name":function_name}}; 
+		
+		
+		// 获取车辆功能的记录的字段和值
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_owner_message/' + car_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        
+        	if(ret){
+        		
+        		var id;
+        		var send_user;
+        		var sent_time;
+        		var sent_message;
+        		var reply_time;
+        		var reply_message;
+        		var flag;
+        		
+        		var div_send_user;
+        		var div_sent_time;
+        		var div_sent_message;
+        		var div_reply_time;
+        		var div_reply_message;
+        		var div_reply_message_control;
+        		
+        		// 消息个数
+        		count = ret.length;
+        		existed_message_count = count; 
+        		        		
+        		if(count > 0)
+        			document.body.innerHTML = "";
+        		else
+        			document.body.innerHTML = "<center>无数据记录。</center>"; // 默认显示
+        			
+        		var item_html_str = "";
+        		
+        		// 循环每个记录
+        		for(i = 0; i < count; i++){ // 记录
+        			
+        			id = ret[i].id;
+        			flag = ret[i].flag;
+        			send_user = ret[i].from_user_nice_name;
+        			sent_time = ret[i].sent_time;
+        			sent_message = ret[i].sent_message;
+        			reply_time = ret[i].reply_time;
+        			reply_message = ret[i].reply_message;
+        			
+        			item_html_str = "<div class='car_owner_message_item' id='message_item_" + id + "'>";
+        		    item_html_str += "<div class='del_btn' onclick='deleteMessage(" + id + ")'>删除</div>";
+        			item_html_str += "<div class='send_user'>" + send_user + ", " + sent_time + "</div>";
+        			//item_html_str += "<div class='send_time'>发送时间：" + sent_time + "</div>";
+        			item_html_str += "<div class='sent_message'>" + sent_message + "</div>";
+        		    if(flag == 2) {
+        		    	item_html_str += "<div class='reply_time'>" + reply_time + "</div>";
+        				item_html_str += "<div class='reply_message'>回复：" + reply_message + "</div>";
+        		    }
+        		    else{ // 尚未回复
+        		    	item_html_str += "<div class='message_editor_container'>" +
+        		    		"<input class='message_editor' id='message_" + id + "' placeholder='请输入回复消息内容'/>" + 
+        				    "<div class='send_message_btn' onclick='replyMessage(" + id + ")'>发送</div>" + 
+        				    "</div>";
+        		    }
+        			
+        			item_html_str += "</div>";
+        			
+        			document.body.innerHTML += item_html_str;
+        		}
+        	
+        	}
+        	else{
+        		//document.body.innerHTML = JSON.stringify(err);
+        		document.body.innerHTML = "<center>加载数据失败。</center>"
+        	}
+        
+        })
+	};
+	
+	function deleteMessage(id){
+		// 删除一条消息
+		api.confirm({
+	               	title:'删除消息',
+	               	msg:'确定要删除车主消息吗？',
+	               	buttons:['确定','取消']
+                   },function(ret,err){
+			
+			if(ret.buttonIndex == 1){
+			
+				// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+			
+				var data = {values:{"id":id}};
+			
+				api.ajax({
+			        "url":_server_ip + '/carchat/delete_one_car_owner_message',
+			        "method": "POST",
+		      		"cache": false,
+		      		"headers": {
+		        		"X-APICloud-AppId": appId,
+		        		"X-APICloud-AppKey": appKey
+		      		},
+		      		"data": data
+		        },function(ret,err){
+		        	        
+		        	api.hideProgress();
+		        	        
+		        	if(ret){
+		        		// ret[0]: true
+		        		api.toast({msg:'删除成功。',location:'middle'});
+		        		
+		        		//var d = $api.byId('car_news_item_div');
+		        		var c = $api.byId('message_item_' + id);
+		        		document.body.removeChild(c);
+		        		//d.removeChild(c);
+		        		
+		        		existed_message_count--; // 消息条目数递减
+		        		if(existed_message_count <= 0){
+		        			//var d = $api.byId('car_news_item_div');
+		        			//d.innerHTML = "<center>暂无动态消息</center>";
+		        			document.body.innerHTML = "<center>无数据记录。</center>"; 
+		        		}
+		        	}
+		        	else{
+		        		api.toast({msg:'删除失败。',location:'middle'});
+		        	}
+		        	
+		        });
+	        }
+	      });
+	}
+	
+	function replyMessage(id){
+		// 回复一条消息
+		
+		var msg = $api.byId('message_' + id).value;
+		if(msg) msg = msg.trim(msg); // 去掉空格
+		if(msg == "") return;
+			
+		var data = {values:{"id":id, "reply_message":msg}};
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        
+		api.ajax({
+	        "url":_server_ip + '/carchat/reply_car_owner_message',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	api.hideProgress();// 关闭进度显示
+        	
+        	if(ret){ //
+        		api.toast({msg:'消息回复成功。',location:'middle'});
+        	}
+        	else{
+        		//api.toast({msg:'消息发送失败。',location:'middle'});
+        		api.alert({
+        			 msg:JSON.stringify(err)
+                },function(ret,err){
+                	//coding...
+                });
+        	}
+        });
+	}
+	
+	
+	function remove_all_car_owner_message(){
+		// 清空功能记录
+		
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 标题名称， 中文
+		var function_name = tool_info.function_name; // 功能名称，英文
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		var car_id = car_info_json.car_id;
+		
+		
+		api.confirm({
+	               	title:'清空' + tool_title,
+	               	msg:'确定要清空'+ tool_title + '吗？',
+	               	buttons:['确定','取消']
+        	}, function(ret,err){
+				if(ret.buttonIndex == 1){
+					// 显示进度
+					api.showProgress({
+						style:'default',
+						animationType:'fade',
+						title:'',
+						text:'',
+						modal:true
+			        });
+				
+					var data = {values:{"car_id":car_id}};
+				
+					api.ajax({
+				        "url":_server_ip + '/carchat/delete_all_car_owner_message',
+				        "method": "POST",
+			      		"cache": false,
+			      		"headers": {
+			        		"X-APICloud-AppId": appId,
+			        		"X-APICloud-AppKey": appKey
+			      		},
+			      		"data": data
+			        },function(ret,err){
+			        	        
+			        	api.hideProgress();
+			        	        
+			        	if(ret){
+			        		// ret[0]: true
+			        		api.toast({msg:'清空消息成功。',location:'middle'});
+			        					        		
+			        		existed_record_count = 0; // 记录数递减
+			        		document.body.innerHTML = "<center>无数据记录。</center>";
+			        		
+			        	}
+			        	else{
+			        		api.toast({msg:'清空消息失败。',location:'middle'});
+			        		
+			        	}
+			        	
+			        });
+				}
+			});
+	}
+</script>
+</html>

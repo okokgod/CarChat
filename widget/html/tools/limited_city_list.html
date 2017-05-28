@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+
+	apiready = function(){
+
+        // 获取限行城市列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/limited_city_list',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		//test.innerText = JSON.stringify(ret);
+
+
+
+        		var name = "";
+        		var id;
+        		var date_str;
+        		var week_str;
+        		var auto_type_str;
+        		var today_str;
+        		var limit_content;
+
+        		var limit_content_lines;
+        		var limit_content_line_count;
+        		var item_div_height;
+
+        		var auto_types; // array
+
+        		var city_list_html;
+
+				document.body.innerHTML = ""; //"<div><div class='common_title_item'><center>声明： 以下数据仅供参考，请以相关法律法规为准。</center></div>";
+
+
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+
+        			id = row.id;
+        			name = row.name;
+        			date_str = row.today; // 2017年01月01日
+        			week_str = row.week; // 周一
+
+        			today_str = "今天是：" + date_str + "，<span style='font-weight:bold;background-color: #BCBCBC'>" + week_str + "</span>";
+
+        			limit_content = "限行规定：<br>";
+        			item_div_height = 60;
+
+
+        			if(row.limit_content != null){
+	        			limit_content_lines = row.limit_content.split('\r\n');
+	        			limit_content_line_count = limit_content_lines.length + 1;
+	        			item_div_height += limit_content_line_count * 20;
+
+	        			limit_content += row.limit_content;
+
+	        			var reg = new RegExp("\r\n", "g");
+        				limit_content = limit_content.replace(reg, "<br>");
+        			}
+        			else{
+        				limit_content += "无";
+        			}
+
+        			/*
+        			auto_type_str = "限行规定：";
+        			auto_types = row.limited_auty_types; // 受限制的车辆类型
+        			for(var j = 0; j < auto_types.length; j++){
+        				if(j == 0){
+        					auto_type_str += auto_types[j];
+        				}
+        				else{
+        					auto_type_str += '; ' + auto_types[j];
+        				}
+        			}
+        			*/
+
+        			city_list_html = "<div class='traffic_limit_city_item' style=\'height:" + item_div_height + "px\' onclick=\"onClickItem(" + id + ", '" + name + "')\">" +
+        											 "<div class='name'>" + name + "</div>" +
+        											 "<div class='date'>" + today_str + "</div>" +
+        											 "<div class='limit_content' >" + limit_content + "</div>" +
+        											 //"<div class='detail_arrow'>>>></div>" +
+	        									     "</div>";
+	        		document.body.innerHTML += city_list_html;
+        		}
+
+        		//document.body.innerHTML += "</div>";
+
+
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+
+	};
+
+	function onClickItem(city_id, city_name){
+
+		var title = city_name + '市车辆限行规定';
+		var win_name = 'win_traffic_limit_list';
+		var frame_name = 'frame_traffic_limit_list';
+		var frame_url = '../tools/traffic_limit_list.html';
+		var page_info = {'city_id': city_id,
+		    'title': title,
+			'win_name': win_name,
+			'frame_name': frame_name,
+			'frame_url': frame_url};
+
+		var master_url = '../common/tool_common_header.html';
+
+		api.openWin({
+					name: win_name,
+					url: master_url,
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+				});
+
+		/*
+		var page_info = {'city_id': city_id};
+		var x = api.winWidth * 0.05;
+		var y = 55;//api.winHeight * 0.05;
+		var w = api.winWidth * 0.9;
+		var h = api.winHeight * 0.6;
+		api.openFrame({
+	        name: 'frame_charge_standard_detail',
+	        url: 'charge_standard_detail.html',
+	        rect: {
+		        'x':x,
+		        'y':y,
+		        'w':w,
+		        'h':h
+	        },
+	        bounces:false,
+	        pageParam: page_info
+        });
+        */
+	}
+
+</script>
+</html>

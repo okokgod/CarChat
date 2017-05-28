@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.top_panel{position:relative ;height: 95px;background-color: #404040;display:block}
+    	
+    	.total_label{left:5px;top:8px; font-size:15px;position:absolute;color:#FFFFFF}
+    	.total_value{left:58px;top:8px; font-size:15px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.cell11_label{left:5px;top:28px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell11_value{left:60px;top:28px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.cell12_label{left:5px;top:45px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell12_value{left:60px;top:45px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.cell21_label{left:145px;top:28px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell21_value{left:200px;top:28px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.cell22_label{left:145px;top:45px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell22_value{left:200px;top:45px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.cell31_label{left:5px;top:62px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell31_value{left:60px;top:62px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}    	
+
+    	.cell32_label{left:145px;top:62px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell32_value{left:200px;top:62px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.cell41_label{left:5px;top:79px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell41_value{left:90px;top:79px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}    	
+
+    	.cell42_label{left:145px;top:79px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.cell42_value{left:200px;top:79px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.calculate_btn{right:15px; top:8px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+    	.tip{right:15px; top:8px; height:30px; width:50px;border-radius:5px; font-size:12px; text-align:center; word-wrap:break-word; position:absolute;background-color:#FFFF00;color:#0000FF}
+    </style>
+</head>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					
+					<span id="title"></span>
+				</div>
+				<div id="calculator_panel" class="top_panel">
+					<div class="total_label">总花费：</div>
+					<div class="total_value" id="total_cost_label">0 元</div>
+					
+					<div class="cell11_label">车身价格：</div>
+					<div class="cell11_value" id="car_cost_label">0 元</div>
+					
+					<div class="cell12_label">必要费用：</div>
+					<div class="cell12_value" id="required_cost_label">0元</div>
+					
+					<div class="cell21_label">商业保险：</div>
+					<div class="cell21_value" id="insurance_cost_label">0 元</div>
+					
+					<div class="cell22_label">其他费用：</div>
+					<div class="cell22_value" id="other_cost_label">0 元</div>
+					
+					<div class="cell31_label">首期总付：</div>
+					<div class="cell31_value" id="down_payment_cost_label">0 元</div>
+					
+					<div class="cell32_label">月供：</div>
+					<div class="cell32_value" id="monthly_payment_cost_label">0 元</div>
+					
+					<div class="cell41_label">比全款购车多：</div>
+					<div class="cell41_value" id="more_cost_label">0 元</div>
+					
+					<div class="tip">计算结果仅供参考</div>
+				</div>
+		<div id="main" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		
+		
+		// 工具页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title;
+		var tool_frame_name = tool_info.frame_name;
+		var tool_frame_url = tool_info.frame_url;
+		
+		$api.byId('title').innerText = tool_title;
+	
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight + $api.byId("calculator_panel").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("main").offsetHeight
+	        },
+	        pageParam:tool_info,
+	        bounces:false
+        });
+        
+	};
+	
+	function displayCost(loan_total_cost, car_cost, required_cost, insurance_cost, other_cost, shouqi_cost, yuegong_cost, more_cost){
+		// 显示总费用及各项分费用
+		/*
+		 * loan_total_cost + ', ' +
+	       car_price + ', ' + 
+	       required_val + ', ' + 
+	       in_subtotal_value + ', ' + 
+	       other_subtotal_value + 
+	       shouqi_cost + 
+	       yuegong_cost + 
+	       more_cost +
+		 */
+		
+		//var total_cost = car_cost + required_cost + insurance_cost + other_cost;
+		
+		displayCostValueToLabel("total_cost_label", loan_total_cost);
+		displayCostValueToLabel("car_cost_label", car_cost);
+		displayCostValueToLabel("required_cost_label", required_cost);
+		displayCostValueToLabel("insurance_cost_label", insurance_cost);
+		displayCostValueToLabel("other_cost_label", other_cost);
+		displayCostValueToLabel("down_payment_cost_label", shouqi_cost);
+		displayCostValueToLabel("monthly_payment_cost_label", yuegong_cost);
+		displayCostValueToLabel("more_cost_label", more_cost);
+	}
+	
+	
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+
+</script>
+</html>

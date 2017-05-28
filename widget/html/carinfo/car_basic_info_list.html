@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+    
+	apiready = function(){
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+				
+		// 获取车辆基本信息
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_basic_info/' + car_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        
+        	if(ret){
+        		if(ret.length == 1){
+        			var car_mark = ret[0].car_mark;
+        			var brand_cn_name = ret[0].brand_cn_name;
+        			var series_cn_name = ret[0].series_cn_name;
+        			var car_model_name = ret[0].model_name;
+        			var produced_date = ret[0].produced_date;
+        			var bought_date = ret[0].bought_date;
+        			var car_price = ret[0].car_price;
+        			var dealer = ret[0].dealer;
+        			var phone = ret[0].phone;
+        			
+        			document.body.innerHTML = "";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>车牌号</div>" +
+        									   	"<div class='field_value'>" + car_mark + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>品牌</div>" +
+        									   	"<div class='field_value'>" + brand_cn_name + "</div>" +
+        									   "</div>"; 
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>车系</div>" +
+        									   	"<div class='field_value'>" + series_cn_name + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>车型</div>" +
+        									   	"<div class='field_value'>" + car_model_name + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>生产日期</div>" +
+        									   	"<div class='field_value'>" + produced_date + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>购买日期</div>" +
+        									   	"<div class='field_value'>" + bought_date + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>车身价格</div>" +
+        									   	"<div class='field_value'>" + car_price + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>经销商</div>" +
+        									   	"<div class='field_value'>" + dealer + "</div>" +
+        									   "</div>";
+        			document.body.innerHTML += "<div class='car_basic_info_item'>" +
+        									   	"<div class='field_name'>挪车电话</div>" +
+        									   	"<div class='field_value'>" + phone + "</div>" +
+        									   "</div>";
+        		}
+        	}
+        	else{
+        		document.body.innerHTML = "<center>加载数据失败。</center>"
+        	}
+        
+        })
+	};
+	
+</script>
+</html>

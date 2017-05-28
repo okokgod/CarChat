@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		
+		
+        // 获取应急常识的标题
+        api.ajax({
+	        "url": _server_ip + '/carchat/emergency_knowledge_titles',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        	
+        	
+
+        		var title = "";
+        		var id;
+				
+				var emergency_knowledge_item_html;
+				
+				document.body.innerHTML = "";
+				
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+        			
+        			id = row.id
+        			title = row.title;
+        		
+        			
+        			
+        			emergency_knowledge_item_html  = "<div class='common_title_item' onclick='onClickItem(" + id + ")'>" +
+        											 "<div class='title'>" + title + "</div>" +
+        											 "<div class='detail_arrow'></div>" +
+	        									     "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += emergency_knowledge_item_html;
+        		}
+        		
+        		//document.body.innerHTML += "</div>";
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	function onClickItem(id){
+	
+		var page_info = {'id': id};
+		
+		var x = api.winWidth * 0.05;
+		var y = 55;//api.winHeight * 0.05; 
+		var w = api.winWidth * 0.9;
+		var h = api.winHeight * 0.6;
+		
+		api.openFrame({
+	        name: 'frame_emergency_knowledge_detail',
+	        url: 'emergency_knowledge_detail.html',
+	        rect: {
+		        'x':x,
+		        'y':y,
+		        'w':w,
+		        'h':h
+	        },
+	        bounces:false,
+	        pageParam: page_info
+        });
+	}
+</script>
+</html>

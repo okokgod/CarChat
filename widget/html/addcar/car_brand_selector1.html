@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					<div class="right" onclick="doSelect()">确定</div>
+					选择汽车品牌
+				</div>
+				
+		<div id="car_brand_list" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		api.openFrame({
+	        name: 'car_brand_list',
+	        url: 'car_brand_list.html',
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("car_brand_list").offsetHeight
+	        },
+	        bounces:false
+        });
+	};
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+	
+	
+	
+	function doSelect(){
+		
+		/*
+		// 调用 car_info_item.html 中的 setCarBrandName（）
+		if(selected_brand_info){
+			var brand_info_str = JSON.stringify(selected_brand_info);
+			api.execScript({
+				frameName: 'car_info_item',
+		        script: 'setCarBrandName(' + brand_info_str + ');'
+	        });
+        }
+        
+        api.closeWin({});
+        */
+       
+       api.execScript({
+       	   frameName: 'car_brand_list',
+	       script: 'doSelectBrand();'
+       });
+	}
+</script>
+</html>

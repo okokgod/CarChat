@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.divider {height: 15px;}
+    	
+		input::-webkit-input-placeholder {color: #aaa;}
+		
+    </style>
+</head>
+<body>
+	<div class="flex-con">
+		<div class="carchat_input_item">
+			<input type="hidden" id="province_name_index" value="0"/>
+			<div class="carmark_border"></div>
+			<div class="carchat_mark_provice_name" id="mark_provice_name" onclick="openProvinceNameSelector()">京</div>
+			<input class="carchat_mark_input" type="text" maxlength="6" id="carmark" placeholder="车牌号  [必填]"/>
+			<div class="search_car_phone_btn" onclick="queryMarkLucky()">搜索</div>
+		</div>
+			
+		
+		<div id="search_result" style="padding-top:10px"></div>
+		
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+    //var _province_info = null; // 省份名称及简称数组
+    
+	apiready = function(){
+		
+	};
+	
+	function openProvinceNameSelector(){
+		// 打开省份的选择器，先加载省份及简称
+		if(_province_info == null) {
+			
+			// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+			
+			api.ajax({
+		        "url": _server_ip + '/carchat/province_names',
+		        "method": "GET",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		}
+	        },function(ret,err){
+	        	api.hideProgress();
+	        
+	        	if(ret){ // 成功
+	        		        	
+	        		_province_info = ret; // [{id, name, abbr, code}, ....]
+	        		
+	        		// 显示选择器
+	        		selectProvinceName();
+	        	}
+	        });
+        }
+        else{
+        	// 显示选择器
+        	selectProvinceName();
+        }
+	}
+	
+	function selectProvinceName(){
+		// 选择省的简称
+		
+		if(_province_info == null) return;
+		
+		var items = new Array();
+		
+		var i, length;
+		var a_province;
+		var province_name;
+		var province_abbr;
+		var province_id;
+		length = _province_info.length;
+		for(i = 0; i < length; i++){
+			a_province = _province_info[i];
+			province_name = a_province.name;
+			province_abbr = a_province.abbr;
+			
+			items[i] = {text: province_name + " - " + province_abbr, status: 'normal', index:i};
+		}
+		
+	    			
+	     var label_div_id = 'mark_provice_name';
+	     var index_input_id = 'province_name_index';
+	     var title = '选择省份';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+	
+	function selectOption(title, items, label_div_id, index_input_id){
+		// 
+		
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: title,
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(200,200,200)',
+	             color: '#404040',
+	             size: 15,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(0,0,150)',
+	             bgHighlight: 'rgb(0,0,150)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: items
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight" && ret.items.length == 1){
+		     		var label_div = $api.byId(label_div_id);
+		     		var index_input = $api.byId(index_input_id);
+		     		
+		     		// 单选，只回传一个Item
+		     		var province_abbr = _province_info[ret.items[0].index].abbr;
+		     		
+		     		label_div.innerText = province_abbr; 
+		     		index_input.value = ret.items[0].index;
+		     		
+		     		UIMultiSelector.close();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.close();
+		     	}
+		     
+		     } else {
+		         
+		     }
+		 });
+	}
+	
+	function queryMarkLucky(){
+		// 开始查询车牌号的吉凶
+		
+		//var province_index = $api.byId('province_name_index').value;
+		var province_abbr = $api.byId('mark_provice_name').innerText;
+		//province_abbr + 
+		var car_mark = $api.byId("carmark").value;
+		
+		if(car_mark) car_mark = $api.trim(car_mark);
+		if(car_mark == "" || car_mark.length != 6){search_result.innerText = "<center>请输入正确的车牌号。</center>"; return;}
+		// 车牌号的第一字符必须为字母
+		var first_char = car_mark.charAt(0);
+		var reg= /^[A-Za-z]+$/;
+		if(!reg.test(first_char)){search_result.innerText = "<center>车牌号第一位必须为字母。</center>"; return;}
+		
+		// 转换为大写 
+		car_mark = province_abbr + car_mark.toUpperCase();
+		
+		search_result.innerText = ""; // 清空提示
+		
+		/*
+		api.alert({
+			msg:car_mark
+        },function(ret,err){
+        	//coding...
+        });
+        */
+       
+        //return;
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+		
+		
+		var data = {values:{"mark":car_mark}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/mark_lucky',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	api.hideProgress();// 关闭进度显示
+        	
+        	
+        	
+        	if(ret){
+        		var count = ret.length;
+        		        		
+        		if(count == 0){ // 没有找到车辆
+        			search_result.innerHTML = "很抱歉，没有查询结果。";
+        		}
+        		else if(count == 1){ // 通常只有一条结果
+        		
+        			search_result.innerHTML += "<div style='height:50px;width:100%;line-height:50px;text-align:center;border-bottom:1px solid #ccc;color:red'>温馨提示：查询结果仅供娱乐，莫当真。</div>"
+        			
+        			var score;//数理分数
+					var luck;//吉凶
+					var content;//吉凶分析
+					var character;//主人个性
+					var characterdetail;//具体表现
+					
+					score = ret[0].score;
+					luck = ret[0].luck;
+					content = ret[0].content;
+					character = ret[0].character;
+					characterdetail = ret[0].characterdetail;
+					
+					var w = api.winWidth*0.9;
+					var s = "style='width:90%;padding:10px;postion:relavtive'";
+					search_result.innerHTML += "<div " + s + "><span style='color:blue;font-weight:bold'>数理分数：</span>" + score + "</div>";
+        			search_result.innerHTML += "<div " + s + "><span style='color:blue;font-weight:bold'>吉凶：</span>" + luck + "</div>";
+        			search_result.innerHTML += "<div " + s + "><span style='color:blue;font-weight:bold'>吉凶分析：</span><br><br>" + content + "</div>";
+        			search_result.innerHTML += "<div " + s + "><span style='color:blue;font-weight:bold'>主人个性：</span><br><br>" + character + "</div>";
+        			search_result.innerHTML += "<div " + s + "><span style='color:blue;font-weight:bold'>具体表现：</span><br><br>" + characterdetail + "</div>";
+        			
+        		}
+        	
+        	}
+        	else{
+        		search_result.innerText = "查询出错，请稍后重新搜索。";
+        		
+        	}
+        	
+        });
+		
+	}
+	
+</script>
+</html>

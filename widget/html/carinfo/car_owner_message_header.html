@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="goback()"><img src="../../image/back.png"></div>
+					
+					<span id="title"></span>
+				</div>
+				
+		<div id="main" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+
+	apiready = function(){
+	
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 标题，中文
+		var tool_frame_name = tool_info.frame_name; // 框架名称，英文
+		var tool_frame_url = tool_info.frame_url; // 框架文件
+		var function_name = tool_info.function_name;  // 功能名称,英文
+		// 页面标题
+		$api.byId('title').innerText = tool_title;
+	
+		
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+		
+		// 根据用户与车辆的所属关系，是否显示“编辑”按钮
+		var header_div = $api.byId("toptoolbar");
+		if(relation_type == 1) {
+			// <div class="right" onclick="popupMenu()"><img src="../../image/more.png"></div>
+			header_div.innerHTML += "<div class='right' onclick='popupMenu()'><img src='../../image/more.png'></div>"
+		}
+		
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("main").offsetHeight
+	        },
+	        bounces:false,
+	        pageParam: tool_info
+        });
+		
+        
+        
+	};
+	
+	function goback(){
+		// 关闭当前窗口
+		api.closeWin({
+        });
+	}
+	
+	function popupMenu(){
+		// 弹出菜单： 添加记录，清空记录
+		
+		// 页面参数
+		var tool_info = api.pageParam;
+		var win_name = tool_info.win_name;
+		var tool_frame_name = tool_info.frame_name; // 框架名称，英文
+		
+		// 菜单项定义
+		//menuItems = [{title:'添加记录', icon:'widget://image/add.png'}, {title:'清空记录', icon:'widget://image/delete.png'}];
+        menuItems = [{title:'清空记录', icon:'widget://image/delete.png'}];
+        
+        // 菜单项事件定义   
+		var f = function(ret){
+			if(ret){
+				// ret: {index:1, eventType:click}
+				if(ret.eventType == 'click'){
+				
+					if(ret.index == 0){ // 清空记录
+						api.execScript({
+								        name:win_name,
+								        frameName: tool_frame_name,
+	                                    script: 'remove_all_car_owner_message();'
+                                  });
+					}
+				}
+			}
+		};
+		
+		// 菜单大小
+		var w = 150;
+        var h = 45;
+        var x = api.winWidth - 10;
+        var y = $api.byId('toptoolbar').offsetHeight + 15;
+        
+        
+        var mnPopups = api.require('MNPopups');
+		mnPopups.open({
+		    rect: {
+		        w: w,
+		        h: h
+		    },
+		    position: {       
+		        x: x, 
+		        y: y      
+		    },
+		    styles: {
+		        mask: 'rgba(0,0,0,0)',
+		        bg: '#404040',                        
+		        cell: {                            
+		            bg:{
+		                normal: '',              
+		                highlight: ''            
+		            },                   
+		            h: 45,                         
+		            title: {                      
+		                marginL: 45,               
+		                color: '#FFFFFF',          
+		                size: 16,                 
+		            },
+		            icon: {                        
+		                marginL: 10,               
+		                w: 25,                     
+		                h: 25,                     
+		                corner: 2                  
+		            }
+		        }
+		    },
+		    datas: menuItems,
+		    animation: true,
+		    pointer: {
+	            size: 1,                     
+	            xPercent: 90,                
+	            yPercent: 0,                 
+	            orientation: 'downward'
+        	}
+		}, f);
+	}
+
+</script>
+</html>

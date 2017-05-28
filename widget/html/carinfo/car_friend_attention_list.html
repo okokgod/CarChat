@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+	apiready = function(){
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		
+		// 先查询该车辆下的所有车友关注请求
+		//var data = {values:{"car_id":car_id}};
+		api.ajax({
+	        "url":_server_ip + '/carchat/user_car_attent_requests/' + car_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){
+        		var request_id;
+        		var user_id;
+        		var car_id;
+        		var ver_status;
+        		var req_comment;
+        		var ver_comment;
+        		
+        		document.body.innerHTML = "<center>暂无关注请求</center>";
+        		
+        		var request_item_html = "";
+        		var btns = "";
+        	
+        		// 先生成列表
+        		var count = ret.length;
+        		var i;
+        		for(i = 0; i < count; i++){
+        			request_id = ret[i].id; // 请求记录的ID
+        			user_id = ret[i].user_id; // 请求人的ID
+        			car_id = ret[i].car_id; // 目标车辆的ID
+        			ver_status = ret[i].status; // 验证状态：-1拒绝，0 未验证，1已验证
+        			req_comment = ret[i].request_comment; // 请求时的发送的留言
+        			ver_comment = ret[i].verify_comment;
+        			
+        			btns = "";
+        			if(ver_status == "0") {// 未验证，操作按钮为 接受、删除
+        				btns = "<div class='btn_accept' onclick=\"onClickAccept(this, " + request_id + ", '" + user_id + "'," + car_id + ")\">接受</div>" + 
+        				       "<div class='btn_remove' onclick=\"onClickRemove(this, " + request_id + ", '" + user_id + "'," + car_id + ")\">删除</div>";
+        			}
+        			else if(ver_status == "1"){// 已验证过，操作按钮为 删除
+        				btns = "<div class='btn_remove' onclick=\"onClickRemove(this, " + request_id + ", '" + user_id + "'," + car_id + ")\">删除</div>"+
+        				       "<div class='verify_result'>" + ver_comment + "</div>"
+        			}
+        			
+        			
+        			request_item_html = "<div class='car_friend_attention_request_item' id='request_item_" + request_id + "'>" +
+        									"<div class='user_name' id='name_" + user_id + "'></div>" +
+        									"<div class='request_comment' id='desc_" + user_id + "'>" + req_comment + "</div>" +
+        									"<img class='portrait' id='img_" + user_id + "'/>" +
+        									btns +
+        								"</div>";
+        			
+        			document.body.innerHTML += request_item_html;
+        		}
+        		
+        		// 再顺序获取请求关注的用户名及头像链接
+        		for(i = 0; i < count; i++){
+        			user_id = ret[i].user_id;
+        			
+        			api.ajax({
+				        "url":'https://d.apicloud.com/mcm/api/user/' + user_id,
+				        "method": "GET",
+			      		"cache": false,
+			      		"headers": {
+			        		"X-APICloud-AppId": appId,
+			        		"X-APICloud-AppKey": appKey
+			      		}
+			        },function(ret,err){
+			        	if(ret){ //  ret 是用户的信息的JSON
+			        		var uid = ret.id;
+			        		var nice_name = ret.nicename;
+			        		var logo = ret.portrait.url;
+			        		
+			        		$api.byId('name_' + uid).innerText = nice_name;
+			        		$api.byId('img_' + uid).src = logo; 
+			        		
+			        	}
+			        });
+        		
+        		}
+        	}
+        });
+	};
+	
+	function onClickAccept(obj, request_id, user_id, car_id){
+		// 点击接受按钮，弹出确认对话框
+		
+		
+		api.confirm({
+			title: "接受车友请求",
+			msg: "请选择给予的权限",
+			buttons:["拥有", "关注", "取消"]
+        },function(ret,err){
+        	//coding...
+        	var relation_type = 2;
+        	var ver_comment = "";
+        	if(ret.buttonIndex == 1){
+        		relation_type = 1;
+        		ver_comment = "拥有";
+        	}
+        	else if(ret.buttonIndex == 2){
+        		relation_type = 2;
+        		ver_comment = "关注";
+        	}
+        	else{
+        		return; // 取消，退出
+        	}
+        	
+        	// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+	        
+	        
+        	var data = {values:{"request_id":request_id, "user_id":user_id, "car_id":car_id, "relation_type":relation_type}};
+        	api.ajax({
+		        "url":_server_ip + '/carchat/accept_attention_request',
+		        "method": "POST",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		},
+	      		"data": data
+	        },function(ret,err){
+	        	
+	        	// 关闭进度提示
+	        	api.hideProgress();
+	        	
+	        	if(ret){
+	        		if(ret[0]){
+	        			var req_item = $api.byId('request_item_' + request_id); // 请求条目的父Div
+	        			req_item.removeChild(obj);
+	        			
+	        			var div_n = document.createElement('div');
+	        			div_n.className = 'verify_result';
+	        			div_n.innerText = ver_comment;
+	        			req_item.appendChild(div_n);
+	        		}
+	        	}
+	        	
+	        	/*
+	        	api.alert({
+	        		msg:ret
+                },function(ret,err){
+                	//coding...
+                });
+                */
+	        });
+        });
+		
+	}
+	
+	function onClickRemove(obj, request_id, user_id, car_id){
+		// 点击删除关注
+		
+		api.confirm({
+			title: "删除车友关注",
+			msg: "确定要删除车友关注？",
+			buttons:["确定", "取消"]
+        },function(ret,err){
+        	if(ret.buttonIndex == 1){ // 确定
+        		// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+		        
+		        var data = {values:{"request_id":request_id, "user_id":user_id, "car_id":car_id}};
+	        	api.ajax({
+			        "url":_server_ip + '/carchat/delete_attention',
+			        "method": "POST",
+		      		"cache": false,
+		      		"headers": {
+		        		"X-APICloud-AppId": appId,
+		        		"X-APICloud-AppKey": appKey
+		      		},
+		      		"data": data
+		        },function(ret,err){
+		        	
+		        	// 关闭进度提示
+		        	api.hideProgress();
+		        	
+		        	if(ret){
+		        		if(ret[0]){
+		        			var req_item = $api.byId('request_item_' + request_id); // 请求条目的父Div
+		        			
+		        			document.body.removeChild(req_item);
+		        		}
+		        	}
+		        });
+        	
+        	}
+        });
+	}
+</script>
+</html>

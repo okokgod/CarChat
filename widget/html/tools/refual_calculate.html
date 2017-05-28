@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+	<div class="oil_buy_calculate_item" id="cal_by_total_cost"> 
+		<div class="target_label">加油金额：</div>
+		<div class="target_value_minus_btn" onclick="op_value(1, 'minus', 'target_value_div1', 50, 100, 1000)">-</div>
+		<div class="target_value" id="target_value_div1">200</div>
+		<div class="target_value_add_btn" onclick="op_value(1, 'add', 'target_value_div1', 50, 100, 1000)">+</div>
+		<div class="target_unit">元</div>
+		
+		<div class="oil_average_consumption_label">平均油耗：</div>
+		<div class="oil_average_consumption_value_minus_btn" onclick="op_value(1, 'minus', 'oil_average_consumption_div1', 0.5, 1.0, 30.0)">-</div>
+		<div class="oil_average_consumption_value" id="oil_average_consumption_div1">8.0</div>
+		<div class="oil_average_consumption_value_add_btn" onclick="op_value(1, 'add', 'oil_average_consumption_div1', 0.5, 1.0, 30.0)">+</div>
+		<div class="oil_average_consumption_unit">升/百公里</div>
+		
+		<div id="by_cost_result" class="oil_cal_result"></div>
+		
+	</div>
+	<div class="oil_buy_calculate_item" id="cal_by_total_amount"> 
+		<div class="target_label">加油量：</div>
+		<div class="target_value_minus_btn" onclick="op_value(2, 'minus', 'target_value_div2', 5, 5, 200)">-</div>
+		<div class="target_value" id="target_value_div2">30</div>
+		<div class="target_value_add_btn" onclick="op_value(2, 'add', 'target_value_div2', 5, 5, 200)">+</div>
+		<div class="target_unit">升</div>
+		
+		<div class="oil_average_consumption_label">平均油耗：</div>
+		<div class="oil_average_consumption_value_minus_btn" onclick="op_value(2, 'minus', 'oil_average_consumption_div2', 0.5, 1.0, 30.0)">-</div>
+		<div class="oil_average_consumption_value" id="oil_average_consumption_div2">8.0</div>
+		<div class="oil_average_consumption_value_add_btn" onclick="op_value(2, 'add', 'oil_average_consumption_div2', 0.5, 1.0, 30.0)">+</div>
+		<div class="oil_average_consumption_unit">升/百公里</div>
+		
+		<div id="by_amount_result" class="oil_cal_result"></div>
+	</div>
+	<div class="oil_buy_calculate_item" id="cal_by_total_dist"> 
+		<div class="target_label">行驶里程：</div>
+		<div class="target_value_minus_btn" onclick="op_value(3, 'minus', 'target_value_div3', 50, 100, 2000)">-</div>
+		<div class="target_value" id="target_value_div3">500</div>
+		<div class="target_value_add_btn" onclick="op_value(3, 'add', 'target_value_div3', 50, 100, 2000)">+</div>
+		<div class="target_unit">公里</div>
+		
+		<div class="oil_average_consumption_label">平均油耗：</div>
+		<div class="oil_average_consumption_value_minus_btn" onclick="op_value(3, 'minus', 'oil_average_consumption_div3', 0.5, 1.0, 30.0)">-</div>
+		<div class="oil_average_consumption_value" id="oil_average_consumption_div3">8.0</div>
+		<div class="oil_average_consumption_value_add_btn" onclick="op_value(3, 'add', 'oil_average_consumption_div3', 0.5, 1.0, 30.0)">+</div>
+		<div class="oil_average_consumption_unit">升/百公里</div>
+		
+		<div id="by_dist_result" class="oil_cal_result"></div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		var page_info = api.pageParam;
+		var province_oil_info_JSON = page_info.oil_info;
+		
+		var oil_names = ['oil0', 'oil89', 'oil90', 'oil92', 'oil93', 'oil95', 'oil97'];
+		var oil_name = "";
+        var oil_cn_name = "";
+        var oil_price = "";
+        var price_unit = "";
+        
+        var cal_result_id1 = "";
+        var cal_result_id2 = "";
+        
+        var top = 5;
+        
+        var oil_price_item_html = "";
+        var oil_cal_result_item_html = "";
+        
+        for(var j = 0; j < 7; j++){
+        	oil_name = oil_names[j];
+        	oil_cn_name = province_oil_info_JSON[oil_name];
+        	oil_price = province_oil_info_JSON[oil_name + '_price'];
+        	price_unit = province_oil_info_JSON[oil_name + '_unit'];
+        	one_oil_price_line_str = oil_cn_name + "：" + oil_price + " " + price_unit;
+        				
+        	top = 5 * (j + 1) + j * 15;
+        	oil_price_item_html += "<div class='oil_name' style='top:" + top + "px'>" + oil_cn_name  + ":" + "</div>";
+        	oil_price_item_html += "<div class='oil_price' style='top:" + top + "px'>" + oil_price + "</div>";
+        	oil_price_item_html += "<div class='price_unit' style='top:" + top + "px'>" + price_unit + "，" + "</div>";
+        	
+        	$api.byId('by_cost_result').innerHTML += oil_price_item_html;
+        	$api.byId('by_amount_result').innerHTML += oil_price_item_html;
+        	$api.byId('by_dist_result').innerHTML += oil_price_item_html;
+        	
+        	oil_cal_result_item_html = "";
+        	cal_result_id1 = "result_" + oil_name + "_1_1";
+        	cal_result_id2 = "result_" + oil_name + "_1_2";
+        	oil_cal_result_item_html += "<div class='cal_result1' style='top:" + top + "px' id='" + cal_result_id1 +"'>" + "可加油10升" + "，" + "</div>";
+        	//oil_cal_result_item_html += "<div class='cal_result2' style='top:" + top + "px' id='" + cal_result_id2 +"'>" + "可行驶50公里" + "</div>";
+        	$api.byId('by_cost_result').innerHTML += oil_cal_result_item_html;
+        	
+        	oil_cal_result_item_html = "";
+        	cal_result_id1 = "result_" + oil_name + "_2_1";
+        	cal_result_id2 = "result_" + oil_name + "_2_2";
+        	oil_cal_result_item_html += "<div class='cal_result1' style='top:" + top + "px' id='" + cal_result_id1 +"'>" + "可购买10升" + "，" + "</div>";
+        	//oil_cal_result_item_html += "<div class='cal_result2' style='top:" + top + "px' id='" + cal_result_id2 +"'>" + "可行驶50公里" + "</div>";
+        	$api.byId('by_amount_result').innerHTML += oil_cal_result_item_html;
+        	
+        	oil_cal_result_item_html = "";
+        	cal_result_id1 = "result_" + oil_name + "_3_1";
+        	cal_result_id2 = "result_" + oil_name + "_3_2";
+        	oil_cal_result_item_html += "<div class='cal_result1' style='top:" + top + "px' id='" + cal_result_id1 +"'>" + "可购买10升" + "，" + "</div>";
+        	//oil_cal_result_item_html += "<div class='cal_result2' style='top:" + top + "px' id='" + cal_result_id2 +"'>" + "可行驶50公里" + "</div>";
+        	$api.byId('by_dist_result').innerHTML += oil_cal_result_item_html;
+        
+        }
+        
+
+		cal_refual_result(1);
+        cal_refual_result(2);
+        cal_refual_result(3);
+		
+	};
+	
+
+	function op_value(value_type, op_type, target_div_id, step, min_value, max_value){
+		// 点击增加值的按钮
+		
+		// value_type: 测算量类型，1：按加油金额，2 按加油量，3：按行驶里程
+		
+		var target_div = $api.byId(target_div_id);
+		
+		// 当前值
+		var current_val_str = target_div.innerText; 
+		var current_val = parseFloat(current_val_str);
+		
+		var next_val = current_val;
+		
+		if(op_type == "add"){
+			next_val += step;
+		}
+		else if(op_type == "minus"){
+			next_val -= step;
+		}
+		
+		if(next_val > max_value || next_val < min_value) return;
+		
+		target_div.innerText = next_val + "";
+		
+		cal_refual_result(value_type);
+	}
+	
+	function cal_refual_result(value_type){
+		// 计算加油测算结果
+		// value_type: 测算量类型，1：按加油金额，2 按加油量，3：按行驶里程
+		
+		var page_info = api.pageParam;
+		var province_oil_info_JSON = page_info.oil_info;
+		
+		//获取目标值 ：1：按加油金额，2 按加油量，3：按行驶里程
+		var target_value_str = $api.byId('target_value_div' + value_type).innerText;
+		var target_value = parseFloat(target_value_str);
+		
+		//获取平均油耗
+		var oil_ave_consumption_str = $api.byId('oil_average_consumption_div' + value_type).innerText;
+		var oil_ave_consumption = parseFloat(oil_ave_consumption_str);
+		
+		// 便利每个油品
+		var oil_names = ['oil0', 'oil89', 'oil90', 'oil92', 'oil93', 'oil95', 'oil97'];
+		var oil_name = "";
+        //var oil_cn_name = "";
+        var oil_price_str = "";
+        var oil_price;
+        //var price_unit = "";
+        
+        // 测算结果值
+        var cal_result_value1, cal_result_value2, cal_result_value3;
+        var cal_result_str1, cal_result_str2, cal_result_str3;
+        var cal_result_id1, cal_result_id2;
+		
+		for(var j = 0; j < 7; j++){
+        	oil_name = oil_names[j];
+        	//oil_cn_name = province_oil_info_JSON[oil_name];
+        	oil_price_str = province_oil_info_JSON[oil_name + '_price'];
+        	oil_price = parseFloat(oil_price_str);
+        	//price_unit = province_oil_info_JSON[oil_name + '_unit'];
+        	//one_oil_price_line_str = oil_cn_name + "：" + oil_price + " " + price_unit;
+        	cal_result_str1 = "";
+        	cal_result_str2 = "";
+        	cal_result_str3 = "";
+			if(value_type == 1){ // 按加油金额测算
+				cal_result_value1 = target_value / oil_price;
+				cal_result_str1 = "可加油<span style='color:red'>" + cal_result_value1.toFixed(2) + "</span>升，";
+				
+				cal_result_value2 = (cal_result_value1 / oil_ave_consumption) * 100;
+				cal_result_str2 = "可行驶<span style='color:red'>" + cal_result_value2.toFixed(2) + "</span>公里";
+			}
+			else if(value_type == 2){ //按加油量
+				cal_result_value1 = target_value * oil_price;
+				cal_result_str1 = "油费<span style='color:red'>" + cal_result_value1.toFixed(2) + "</span>元，";
+				
+				cal_result_value2 = (target_value / oil_ave_consumption) * 100;
+				cal_result_str2 = "可行驶<span style='color:red'>" + cal_result_value2.toFixed(2) + "</span>公里";
+			}
+			else if(value_type == 3){ // 按行驶里程
+				cal_result_value1 = (target_value / 100) * oil_ave_consumption;
+				cal_result_str1 = "油耗<span style='color:red'>" + cal_result_value1.toFixed(2) + "</span>升，";
+				
+				cal_result_value2 = cal_result_value1 * oil_price;
+				cal_result_str2 = "油费<span style='color:red'>" + cal_result_value2.toFixed(2) + "</span>元";
+				
+				
+			}
+			
+			cal_result_id1 = "result_" + oil_name + "_" + value_type + "_1";
+        	cal_result_id2 = "result_" + oil_name + "_" + value_type + "_2";
+        	
+        	$api.byId(cal_result_id1).innerHTML = cal_result_str1 + cal_result_str2;
+        	//$api.byId(cal_result_id2).innerHTML = cal_result_str2;
+        }
+	}
+	
+	
+</script>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	
+    	input {height: 50px;font-size: 16px;color: #8E8C8C;width: 100%;outline: none;}
+		input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+    // 每个字段的定义ID
+    var field_def_ids = null;
+    // 每个字段的名称，中文
+    var field_names = null;
+    
+    
+	apiready = function(){
+	
+		// 页面参数
+		var tool_info = api.pageParam;
+		//var tool_title = tool_info.title;
+		//var tool_frame_name = tool_info.frame_name;
+		//var tool_frame_file = tool_info.frame_file;
+		var function_name = tool_info.function_name; 
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+		
+				// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+				
+		// 获取车辆功能的记录字段的信息
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_function_fields/' + function_name,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        
+        	api.hideProgress();
+        
+        	// ret: [[id, 字段名称， 字段类型], ...]
+        	if(ret){
+        		
+        		var i, count;
+        		count = ret.length;
+        		
+        		document.body.innerHTML = "";
+        		
+        		// 保存下字段定义的ID
+        		field_def_ids = new Array(); 
+        		// 保存下字段名称，中文
+        		field_names = new Array();
+        		
+        		for(i = 0; i < count; i++){
+        			var field_id = ret[i][0]; // 字段定义的序号, car_function_field_def.id
+        			var field_name = ret[i][1]; // 字段的中文名称
+        			var field_type = ret[i][2]; // 字段类型：text, number, date, in_ex
+        			
+        			field_def_ids[i] = field_id;
+        			field_names[i] = field_name;
+        			
+        			// 决定输入框的类型
+        			var input_type = '';
+        			var readonly = '';
+        			
+        			if(field_type == 'text'){
+        				input_type = 'text';
+        			}
+        			else if(field_type == 'date'){
+        				input_type = 'text';
+        				readonly = "readonl='readonly'";
+        			}
+        			else if(field_type == 'number' || field_type == 'in_ex'){
+        				input_type = 'number';
+        			}
+        			
+        			document.body.innerHTML += "<div class='carchat_input_item'>" +
+        									   "<input type='" + input_type + "' id='field_" + field_id + "' placeholder='" + field_name + "' " + readonly + " onclick=\"onClickInputEditor(this, '" + field_name + "', '" + field_type + "')\"/>" +	
+        									   "</div>";
+        			
+        		}
+        	
+        	}
+        	else{
+        		document.body.innerHTML = "<center>加载数据失败。</center>"
+        	}
+        
+        })
+	};
+	
+	
+	function onClickInputEditor(obj, field_name, field_type){
+		// field_type: text, number, date, in_ex
+		if(field_type == 'date'){ // 如果是日期类型，则弹出日期选择框
+			api.openPicker({
+	        type:'date',
+	        title:'选择' + field_name
+	        },function(ret,err){
+	        	if(ret){
+	        		var date_str = ret.year + "-" + ret.month + "-" + ret.day;
+	        		//$api.byId("boughtat").value = date_str;
+	        		obj.value = date_str;
+	        	}
+        	});
+		}
+	}
+	
+	function save(){
+		// 保存
+		
+		if(field_def_ids == null) return; // 没有记录
+		
+		// 记录下所有的字段定义ID和字段值，字符串，用;隔开
+		var field_def_ids_str = "";
+		var field_values_str = "";
+		
+		// 遍历每个字段，判断是否填写
+		var field_count = field_def_ids.length;
+		var i;
+		var field_input;
+		var field_def_id;
+		var field_value;
+		var field_name;
+				
+		for(i = 0; i < field_count; i++){
+			field_def_id = field_def_ids[i];
+			field_input = $api.byId('field_' + field_def_id);
+			field_value = field_input.value;
+			// 去掉空格
+			if(field_value) field_value = $api.trim(field_value);
+			if(field_value == ""){api.toast({msg:'请输入'+field_input.placeholder,location:'middle'}); return;}
+			
+			// 保存下字段定义ID和字段值
+			if(i == 0){
+				field_def_ids_str = "" + field_def_id;
+				field_values_str = field_value;
+			}
+			else{
+				field_def_ids_str += ";" + field_def_id;
+				field_values_str += ";" + field_value;
+			}
+		}
+		
+		
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 汽车功能标题，中文
+		var function_name = tool_info.function_name; // 汽车功能名称，英文
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		
+		
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        
+	
+		var data = {values:{"car_id": car_id, 
+					"function_name": function_name, 
+					"field_def_ids_str": field_def_ids_str,
+					"field_values_str": field_values_str}};
+			
+		/*		
+		api.alert({
+			msg:field_def_ids_str + "    " + field_values_str
+        },function(ret,err){
+        	//coding...
+        });
+		*/
+				
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/new_one_function_record',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	
+        	api.hideProgress();// 关闭进度提示
+        	
+        	if(ret != null){
+        		// ret: [function_record_id]
+        			
+        			var rec_id = ret[0];
+        			
+        			/*
+        			api.alert({
+        				msg:rec_id
+                    },function(ret,err){
+                    	//coding...
+                    });
+        			*/
+        			
+        			//var field_info = new Array();
+        			
+        			var field_names_str = ""; // 每个字段的名称，用;隔开
+        			var field_values_str = ""; // 每个字段值，用;隔开
+        			
+        			for(i = 0; i < field_count; i++){
+						field_def_id = field_def_ids[i];
+						field_input = $api.byId('field_' + field_def_id);
+						field_value = field_input.value;
+						
+						field_name = field_names[i];
+						
+						if(i == 0){
+							field_names_str = field_name;
+							field_values_str = field_value;
+						}
+						else{
+							field_names_str += ';' + field_name;
+							field_values_str += ';' + field_value;
+						}
+						
+						//field_info[i] = new Array(rec_id, field_name, field_value);
+					}
+        			
+        			api.execScript({
+        				name: tool_info.win_name,
+        				frameName: tool_info.frame_name,
+	                    script: 'add_one_record_item_to_top(' + rec_id + ', \'' + field_names_str + '\', \'' + field_values_str + '\');'
+                    });
+        		    
+        		     		
+        			api.toast({
+	                        msg:'添加新' + tool_title + '成功。',
+	                        location:'middle',
+	                        duration:1500
+                    });
+             		
+             		// 2秒后返回到功能记录的列表，关闭当前窗口
+             		setTimeout(function(){
+	        			api.closeWin({
+	        				name:'win_add_function_record'
+                        });
+        			}, 1500);
+        	}
+        	else{
+        		
+        		api.toast({
+	                        msg:'添加新' + tool_title + '失败。',
+	                        location:'middle',
+	                        duration:1500
+                });
+                
+        	}
+        });
+    
+	}
+</script>
+</html>

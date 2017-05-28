@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>我</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <style>
+        .empty{ text-align: center; padding: 120px 0; }
+        
+        .btn {margin:3px 10px;}
+		.btn {background: #4DC060;height: 40px; text-align: center; line-height: 40px; font-size: 20px;margin-top: 20px;border-radius: 5px;}
+		.btn span {color: #fff;}
+    </style>
+</head>
+<body>
+    <div class="flex-vertical flex-wrap">
+    	<div class="empty">我</div>
+    	<div class="btn" onclick="doLogout()">
+    		<span>注销登录</span>
+    	</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+	function doLogout(){
+	
+		// 当前登陆的UserID
+		var userId = $api.getStorage("uid");
+		var token = $api.getStorage("token");
+		
+		// 
+		var appId = $api.getStorage("appId");
+    	var appKey = $api.getStorage("appKey");
+    	
+    	/*
+    	api.alert({
+    		title: "ddd",
+    		msg: appId + "    " + appKey
+        },function(ret,err){
+        	//coding...
+        });
+        */
+       
+    	api.ajax({
+	        "url":'https://d.apicloud.com/mcm/api/user/logout',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey,
+        		"authorization": token
+      		}
+        },function(ret,err){
+        
+        
+        	if(ret){
+        		// 退出成功
+        		
+        		// 清空缓存
+				$api.setStorage("uid",null);
+				$api.setStorage("token",null);
+				$api.setStorage("current_user_info",null);
+				//$api.setStorage("appId", null);
+				//$api.setStorage("appKey", null);
+				
+				// 关闭本窗口
+				setTimeout(function(){
+		        			api.closeWin({
+		        				name:'main'
+		                	});
+		        		}, 2000);
+				
+				// 打开登录窗口
+				api.openWin({
+			        name: "login",
+			        url: "login.html",
+			        rect:{x:0,y:0,w:'auto',h:'auto'},
+			        bounces:false,
+			        delay:200
+		        });
+        	}
+        	else{
+        		// 退出失败
+        		api.toast({
+	                msg:'退出失败', location:'middle'
+                });
+        	}
+        });
+        
+        
+	
+		
+		
+		
+	}
+</script>
+
+</html>

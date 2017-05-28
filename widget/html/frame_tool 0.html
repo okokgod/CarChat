@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>常用工具</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/carchat.css"/>
+    <style>
+        .empty{ text-align: center; padding: 120px 0; }
+        
+        
+    </style>
+</head>
+<body>
+	<!--
+	<div style="padding: 10px">
+		<center><img src="../image/loading_more.gif" /></center><br />
+		<center>加载中...</center>
+	</div>
+	-->
+	<div id="wrap" class="flex-wrap flex-vertical">
+		<div id="tool_panel" class="carchat_tool_panel"></div>
+		<div id="my_car_list" class="flex-con" style="background-color: #BCBCBC"></div>
+	</div>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+    var tool_count; // 工具个数
+    var more_tool_menu_item_data = null; // 数组[[], [], ...]
+
+	apiready = function(){
+		//loadUserCars();
+		
+		/*
+		// 常用工具栏面板
+		var p = $api.byId("tool_panel");
+				
+		// 打开我的车列表frame
+		api.openFrame({
+	        name: 'my_car_list',
+	        url: 'my_car_list_frame.html',
+	        rect: {
+		        x:0,
+		        y: p.offsetHeight + 50,
+		        w:api.winWidth,
+		        h:$api.byId("my_car_list").offsetHeight - 5
+	        },
+	        bounces:true
+        });
+        */
+        load_common_tool();
+	}
+	
+	function load_common_tool(){
+		//
+		//  价值常用工具
+		// 
+		
+		var p = $api.byId('tool_panel');
+		
+		api.ajax({
+	        "url": _server_ip + '/carchat/common_tool',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){
+        		// [{id, name, title, icon_file, master_url, frame_url}, ...]
+        		
+        		p.innerHTML = "";
+        		
+        		var tool_name = "";
+        		var tool_title = "";
+        		var tool_icon = "";
+        		var master_url = "";
+        		var frame_url = "";
+        		
+        		var row_div_class = "car_function_item_first_row";
+        		var cell_div_class = "car_function_item_cell1";
+        		var row_div_str = "";
+        		var cell_div_str = "";
+        		
+        		tool_count = ret.length; // 工具个数
+        		for(var i = 0; i < tool_count; i++){
+        			tool_name = ret[i].name;
+        			tool_title = ret[i].title
+        			tool_icon = ret[i].icon_file;
+        			master_url = ret[i].master_url;
+        			frame_url = ret[i].frame_url;
+        			
+        			if(i > 11){ // 为更多的工具，通过弹出菜单打开
+        				break;        			
+        			}
+        			
+        			var r =  i % 4; // r = 0, 1, 2, 3
+        			if(r == 3){//一行中最右边的单元
+        				cell_div_class = "car_function_item_cell4";
+        			}
+        			else{
+        				cell_div_class = "car_function_item_cell1";
+        			} 
+        			
+        			cell_div_str = "<div class='" + cell_div_class + "' onclick=\"onClickTool('" + tool_name + "')\">" +
+        						   "<center><img class='function_icon' src='../image/car_function_icon/" + tool_icon + "'/></center>" +
+								   "<center><span class='function_name'>" + tool_title + "</span></center>" +
+								   "<input type='hidden' id='tool_" + tool_name + "' value='" + tool_title + "'/>" +
+								   "<input type='hidden' id='master_" + tool_name + "' value='" + master_url + "'/>" +
+								   "<input type='hidden' id='frame_" + tool_name + "' value='" + frame_url + "'/>" +
+								   "</div>";
+        			
+        			if(r == 0){ // 新的一行
+        				if(i == 0){ // 第一行
+	        				row_div_class = "car_function_item_first_row";
+	        			}
+	        			else{ // 第二行开始
+	        				row_div_class = "car_function_item_row";
+	        			}
+        			
+        				row_div_str += "<div class='" + row_div_class + "'>";
+        				row_div_str += cell_div_str;
+        			}
+        			else{
+        				row_div_str += cell_div_str;
+        				
+        				if(r == 3 || i == tool_count - 1){ // 一行结束
+        					row_div_str += "</div>";
+        				}
+        			}
+        		}
+        		
+        		
+        		p.innerHTML = row_div_str;
+        		
+        		
+        		// 获取更多弹出按钮的菜单定义
+        		/*
+        		if(tool_count > 12){// 为更多的工具，通过弹出菜单打开
+        		
+        			more_tool_menu_item_data = new Array();
+        			var menu_item_info;
+        			for(var i = 12; i < tool_count; i++){
+        				tool_name = ret[i].name;
+        				tool_title = ret[i].title
+        				tool_icon = ret[i].icon_file;
+        				master_url = ret[i].master_url;
+        				frame_url = ret[i].frame_url;
+        				
+        				menu_item_info = new Array();
+        				menu_item_info[0] = tool_name;
+        				menu_item_info[1] = tool_title;
+        				menu_item_info[2] = tool_icon;
+        				menu_item_info[3] = master_url;
+        				menu_item_info[4] = frame_url;
+        				
+        				more_tool_menu_item_data[i - 12] = menu_item_info;
+        			}
+        		}
+        		*/
+        	}
+        	else{
+        		p.innerHTML = JSON.stringify(err);
+        	}
+        });
+	}
+	
+	function onClickTool(tool_name){
+		// 点击一个常用工具按钮
+		var tool_title = $api.byId('tool_' + tool_name).value;
+		var master_url = $api.byId('master_' + tool_name).value;
+		var frame_url  = $api.byId('frame_' + tool_name).value;
+
+		var win_name = 'tool_win_' + tool_name;
+		var frame_name = 'frame_' + tool_name;
+		
+		var page_info = {'title': tool_title, 
+			'win_name': win_name,
+			'frame_name': frame_name, 
+			'frame_url': frame_url};
+		
+		if(tool_name == 'more_tool' && more_tool_menu_item_data != null){ // 如果是更多按钮，则打开弹出菜单
+			
+			popupMoreToolMenu();
+		}
+		else{ // 否则直接打开工具页面
+			if(master_url != ""){
+				api.openWin({
+					name: win_name,
+					url: master_url,
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+				});
+			}
+		}
+		
+		
+		
+		
+		/*
+		if(tool_name == "map_and_traffic"){ // 地图与路况
+		
+						api.openWin({
+					        name: tool_name,
+					        url: 'tools/map_and_traffic.html',
+					        rect:{x:0,y:0,w:'auto',h:'auto'},
+					        bounces:false
+					        //delay:200
+				        });
+				   
+		}
+		else if(tool_name == "query_oil_price"){ // 查询油价
+			var page_info = {'title': tool_title, 'frame_name': 'frame_' + tool_name, 'frame_url': '../tools/oil_price_list.html'};
+			api.openWin({
+					     name: 'tool_win_' + tool_name,
+					     url: 'common/tool_common_header.html',
+					     rect:{x:0,y:0,w:'auto',h:'auto'},
+					     bounces:false,
+					     pageParam: page_info
+				        });
+		}
+		else if(tool_name == "query_peccancy"){
+			var user_info = getUserCommonInfo(userId);
+			
+			api.alert({
+				msg: JSON.stringify(user_info)
+            },function(ret,err){
+            	//coding...
+            });
+		}
+		*/
+		
+		/*
+		if(tool_name == "map_and_traffic"){ // 地图与路况
+			win_name = 'tool_win_' + tool_name;
+			master_url = 'tools/map_and_traffic.html';
+			frame_name = "";
+			frame_url = "";
+		}
+		else if(tool_name == "query_oil_price"){ // 查询油价
+			win_name = 'tool_win_' + tool_name;
+			master_url = 'common/tool_common_header.html';
+			frame_name = 'frame_' + tool_name;
+			frame_url = 'tools/oil_price_list.html';
+		}
+		else if(tool_name == "query_peccancy"){ // 违章查询
+			
+		}
+		else if(tool_name == ""){
+		
+		}
+		*/
+		
+		
+
+		
+	}
+	
+	
+	function popupMoreToolMenu(){
+		// 弹出更多工具的菜单
+		
+		if(more_tool_menu_item_data == null) return;
+		
+		var menu_item_count = more_tool_menu_item_data.length;
+		var menu_items = new Array();
+		var item_title;
+		var item_icon;
+		for(var i = 0; i < menu_item_count; i++){
+			item_title = more_tool_menu_item_data[i][1]; // 菜单项的标题
+			item_icon = 'widget://image/car_function_icon/' + more_tool_menu_item_data[i][2]; // 菜单项的图标
+			menu_items[i] = {title: item_title, icon:item_icon};
+		}
+		
+		var w = 150; 
+        var h = 50 * menu_item_count;
+        var x = api.winWidth - 10;
+        var y = 70 + 80 * 3;
+		
+		var mnPopups = api.require('MNPopups');
+		mnPopups.open({
+		    rect: {
+		        w: w,
+		        h: h
+		    },
+		    position: {       
+		        x: x, 
+		        y: y      
+		    },
+		    styles: {
+		        mask: 'rgba(0,0,0,0)',
+		        bg: '#404040',                        
+		        cell: {                            
+		            bg:{
+		                normal: '',              
+		                highlight: ''            
+		            },                   
+		            h: 48,                         
+		            title: {                      
+		                marginL: 45,               
+		                color: '#FFFFFF',          
+		                size: 13,                 
+		            },
+		            icon: {                        
+		                marginL: 10,               
+		                w: 25,                     
+		                h: 25,                     
+		                corner: 2                  
+		            }
+		        }
+		    },
+		    datas: menu_items,
+		    animation: true,
+		    pointer: {
+	            size: 1,                     
+	            xPercent: 90,                
+	            yPercent: 0,                 
+	            orientation: 'downward'
+        	}
+		}, function(ret) {
+		    if (ret) {
+               // ret: {index:1, eventType:click}
+               if(ret.eventType == 'click'){
+               		
+               		var tool_name = more_tool_menu_item_data[ret.index][0]; // 工具名，英文
+               		var tool_title = more_tool_menu_item_data[ret.index][1]; // 工具标题，中文
+               		var master_url = more_tool_menu_item_data[ret.index][3];
+					var frame_url  = more_tool_menu_item_data[ret.index][4];
+		
+               		var win_name = 'tool_win_' + tool_name;
+					var frame_name = 'frame_' + tool_name;
+		
+					var page_info = {'title': tool_title, 
+						'win_name': win_name,
+						'frame_name': frame_name, 
+						'frame_url': frame_url};
+               		
+               		if(master_url != ""){
+						api.openWin({
+							name: win_name,
+							url: master_url,
+							rect:{x:0,y:0,w:'auto',h:'auto'},
+							bounces:false,
+							pageParam: page_info
+						});
+					}
+               		
+               }
+		    }
+		});
+	}
+</script>
+</html>

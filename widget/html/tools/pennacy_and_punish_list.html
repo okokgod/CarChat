@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+        // 获取油价列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/pennacy_and_punish',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		//test.innerText = JSON.stringify(ret);
+        		var code = "";  // 违章代码
+        		var point = ""; // 扣分值
+        		var fine = "";  // 罚款
+        		var punish = ""; // 并罚
+        		var descr = "";  // 违章描述
+				
+				var pennacy_punish_item_html;
+				
+				document.body.innerHTML = "<div><div class='peccany_punish_item'><center>声明</center><br><center>以下数据仅供参考，请以相关法律法规为准。</center></div>";
+        		
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+        			
+        			var code_item = "";
+        			var point_item = "";
+        			var fine_item = "";
+        			var punish_item = "";
+        			var descr_item = "";
+        		
+        			if(row.code != null){
+        				code_item = "代码: " + row.code;
+        			}
+        			if(row.point != null){
+        				point_item = "扣分: " + row.point;
+        			}
+        			if(row.fine != null){
+        				fine_item = "罚款: " + row.fine;
+        			}
+        			if(row.punish != null){
+        				punish_item = "并罚: " + row.punish;
+        			}
+        			if(row.description != null){
+        				descr_item = row.description;
+        			}
+        			
+        			
+        			pennacy_punish_item_html  = "<div class='peccany_punish_item'>";
+        			//pennacy_punish_item_html  = "<div class='peccany_punish_item'>";
+        			if(code_item != ""){
+        				pennacy_punish_item_html += "<div class='code'>" + code_item + "</div>";
+        			}
+        			if(point_item != ""){
+        				pennacy_punish_item_html += "<div class='point'>" + point_item + "</div>";
+        			}
+        			if(fine_item != ""){
+        				pennacy_punish_item_html += "<div class='fine'>" + fine_item + "</div>";
+        			}
+        			if(punish_item != ""){
+        				pennacy_punish_item_html += "<div class='punish'>" + punish_item + "</div>";
+        			}
+        			if(descr_item != ""){
+        				pennacy_punish_item_html += "<div class='description'>" + descr_item + "</div>";
+        			}
+        			
+        			//pennacy_punish_item_html += "<div style = 'font:0px/0px sans-serif;clear:both;display:block'> </div >";
+        			
+        			//pennacy_punish_item_html += "<div style = 'height:1px; margin-top:-1px;clear: both;overflow:hidden;' > </div >";  
+        			
+	        		pennacy_punish_item_html += "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += pennacy_punish_item_html;
+        		}
+        		
+        		document.body.innerHTML += "</div>";
+        		
+        		// 关闭进度提示
+        		//api.hideProgress();
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+</script>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>车信</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/carchat.css"/>
+    <style>
+        .empty{ text-align: center; padding: 120px 0; }
+    </style>
+</head>
+<body>
+        
+    <div style="padding: 10px">
+		<center><img src="../image/loading_more.gif" /></center><br />
+		<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+
+	apiready = function(){
+
+    	api.ajax({
+	        "url": _server_ip + '/carchat/user_boards/' + userId,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	//document.body.innerHTML = JSON.stringify(ret);
+        	
+        		if(ret){ // 成功
+	        		        		
+	        		document.body.innerHTML = ""; // 先清空列表
+	        		
+	        		var l = ret.length;
+	        		if(l > 0){
+		        		for(var i = 0;i < l; i++){
+		        			addOneBoardItem(ret[i]);
+		        			
+		        		}
+	        		}
+		        	else{
+		        		document.body.innerHTML = "<div class='empty'>无信息板块数据</div>";
+		        	}
+        		}
+        		else{
+        			document.body.innerHTML = JSON.stringify(err);
+        		}
+        	
+        });
+	}
+	
+	function addOneBoardItem(user_board_info){
+		// user_board_info: {id, name, title, logo_file, user_id}
+		var board_id = user_board_info.id;
+		var board_title = user_board_info.title;
+		var board_logo_file = "../image/" + user_board_info.logo_file;
+		var last_msg = user_board_info.title;
+		
+		var board_item_html = "<div class='carchat_board_item' onclick='selectOneBoard(" + board_id + ")'>" +
+    						"<div class='board_title'>" + board_title + "</div>" +
+    						"<div class='board_last_message'>" + last_msg +  "</div>" +
+    						"<img class='board_logo' src='" + board_logo_file + "' />" +
+    						"<input type='hidden' id='board_" + board_id + "' value='" + user_board_info +"'/>"+
+    						"</div>";
+    	document.body.innerHTML += board_item_html;
+	}
+	
+	function selectOneBoard(board_id){
+	
+	
+	
+	}
+
+</script>
+</html>

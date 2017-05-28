@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+  
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+  var appKey = $api.getStorage("appKey");
+
+	apiready = function(){
+
+        // 获取车辆估值方法列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/car_evaluation_method',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+
+        		var name = "";
+        		var id;
+				var description;
+				var memo;
+
+				var description_lines;
+        		var description_line_count;
+        		var item_div_height;
+
+        		var method_list_html;
+
+						document.body.innerHTML = "";
+
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+
+        			id = row.id;
+        			name = row.name;
+					description = row.description;
+					memo = row.memo;
+
+        			item_div_height = 60; //最小高度
+
+        			if(description != null){
+	        			description_lines = description.split('\r\n');
+	        			description_line_count = description_lines.length + 1;
+	        			item_div_height += description_line_count * 13;
+
+	        			var reg = new RegExp("\r\n", "g");
+        				description = description.replace(reg, "<br>");
+        			}
+        			else{
+        				description = "无";
+        			}
+
+        			method_list_html = "<div class='car_evaluation_method_item' style=\'height:" + item_div_height + "px\' onclick=\"onClickItem()\">" +
+        											 "<div class='method_name'>" + name + "</div>" +
+        											 "<div class='method_description'>" + description + "</div>" +
+													 "<div class='detail_arrow'></div>" +
+	        							"</div>";
+	        		document.body.innerHTML += method_list_html;
+        		}
+
+        		//document.body.innerHTML += "</div>";
+
+
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+
+	};
+
+	function onClickItem(city_id, city_name){
+	}
+
+	function onClickItem2(city_id, city_name){
+
+		var title = city_name + '市车辆限行规定';
+		var win_name = 'win_traffic_limit_list';
+		var frame_name = 'frame_traffic_limit_list';
+		var frame_url = '../tools/traffic_limit_list.html';
+		var page_info = {'city_id': city_id,
+		    'title': title,
+			'win_name': win_name,
+			'frame_name': frame_name,
+			'frame_url': frame_url};
+
+		var master_url = '../common/tool_common_header.html';
+
+		api.openWin({
+					name: win_name,
+					url: master_url,
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+				});
+
+		/*
+		var page_info = {'city_id': city_id};
+		var x = api.winWidth * 0.05;
+		var y = 55;//api.winHeight * 0.05;
+		var w = api.winWidth * 0.9;
+		var h = api.winHeight * 0.6;
+		api.openFrame({
+	        name: 'frame_charge_standard_detail',
+	        url: 'charge_standard_detail.html',
+	        rect: {
+		        'x':x,
+		        'y':y,
+		        'w':w,
+		        'h':h
+	        },
+	        bounces:false,
+	        pageParam: page_info
+        });
+        */
+	}
+
+</script>
+</html>

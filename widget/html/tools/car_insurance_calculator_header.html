@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.top_panel{position:relative ;height: 55px;background-color: #404040;display:block}
+    	
+    	.total_label{left:5px;top:8px; font-size:15px;position:absolute;color:#FFFFFF}
+    	.total_value{left:55px;top:8px; font-size:15px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.qiangzhi_insurance_label{left:5px;top:28px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.qiangzhi_insurance_value{left:60px;top:28px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.necessary_cost_label{left:5px;top:45px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.necessary_cost_value{left:60px;top:45px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.bussiness_insurance_label{left:145px;top:28px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.bussiness_insurance_value{left:200px;top:28px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.other_cost_label{left:145px;top:45px; font-size:12px;position:absolute;color:#FFFFFF}
+    	.other_cost_value{left:200px;top:45px; font-size:12px;font-weight:bold;position:absolute;color:#FFFFFF}
+    	
+    	.calculate_btn{right:15px; top:8px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF}
+    	.tip{right:15px; top:8px; height:30px; width:50px;border-radius:5px; font-size:12px; text-align:center; word-wrap:break-word; position:absolute;background-color:#FFFF00;color:#0000FF}
+    </style>
+</head>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					
+					<span id="title"></span>
+				</div>
+				<div id="calculator_panel" class="top_panel">
+					<div class="total_label">总额：</div>
+					<div class="total_value" id="total_cost_label">0 元</div>
+					
+					<div class="qiangzhi_insurance_label">强制保险：</div>
+					<div class="qiangzhi_insurance_value" id="qiangzhi_insurance_label">0 元</div>
+					
+					<div class="bussiness_insurance_label">商业保险：</div>
+					<div class="bussiness_insurance_value" id="business_insurance_label">0 元</div>
+									
+					<div class="tip">计算结果仅供参考</div>
+				</div>
+		<div id="main" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		
+		
+		// 工具页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title;
+		var tool_frame_name = tool_info.frame_name;
+		var tool_frame_url = tool_info.frame_url;
+		
+		$api.byId('title').innerText = tool_title;
+	
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight + $api.byId("calculator_panel").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("main").offsetHeight
+	        },
+	        pageParam:tool_info,
+	        bounces:false
+        });
+        
+	};
+	
+	function displayCost(qiangzhi_insurance_cost, bussiness_insurance_cost){
+		// 显示总费用及各项分费用
+		var total_cost = qiangzhi_insurance_cost + bussiness_insurance_cost;
+		
+		displayCostValueToLabel("total_cost_label", total_cost);
+		displayCostValueToLabel("qiangzhi_insurance_label", qiangzhi_insurance_cost);
+		displayCostValueToLabel("business_insurance_label", bussiness_insurance_cost);
+	}
+	
+	
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+
+</script>
+</html>

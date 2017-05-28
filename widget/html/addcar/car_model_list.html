@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		/*
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        */
+       
+        // 汽车品牌ID
+        //var brand_id = api.pageParam.brand_id;
+        
+        // 车系ID
+        var series_id = api.pageParam.series_id;
+        
+        api.ajax({
+	        "url": _server_ip + '/carchat/car_model/' + series_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		//test.innerText = JSON.stringify(ret);
+        		var model_id = "";
+        		var model_name = "";
+        		
+        		var model_main_enname = ""
+				var model_main_cnname = "";
+				var model_sub_cnname = "";
+				var model_manufacture = "";
+				var model_info;
+				
+				var model_item_html;
+				
+				document.body.innerHTML = "<form>";
+        		
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			model_info = ret[i];
+        			
+        			model_id = model_info.id;
+        			model_name = model_info.model_name;
+        			
+        			//model_main_enname = model_info.main_en_name;
+					//model_main_cnname = model_info.main_cn_name;
+					//model_sub_cnname = model_info.sub_cn_name;
+					
+					
+        			
+        			
+	        		model_item_html = "<div class='carchat_radio_item'>" +
+	        							  //"<img src='" + brand_logo_url + "' />" +
+	        							  "<div class='title0'>" + model_name + "</div>" +
+	        							  //"<div class='title1'>" + model_main_cnname + "</div>" +
+	        							  //"<div class='title2'>" + model_sub_cnname + "</div>" +
+	        							  "<input type='hidden' id='model_" + model_id + "' value='" + model_name + "'/>" +
+	    						 		  "<input type='radio'  name='models' value='" + model_id + "' onclick='doSelectOneModel(this)'/>"
+	    								  
+	    								  "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += model_item_html;
+        		}
+        		
+        		document.body.innerHTML += "</form>";
+        		
+        		// 关闭进度提示
+        		//api.hideProgress();
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	var model_info = null;
+	
+	function doSelectOneModel(e){
+		// 选中一个条码时，保存选中的品牌
+		
+		/*
+		api.toast({
+	        msg:e.value + "  " + $api.byId(e.value).value
+        });
+        */
+       
+        var model_id = e.value; 
+        var model_name = $api.byId("model_" + model_id).value;
+        model_info = {"id": model_id, "name": model_name};
+        
+        
+	}
+	
+	function doSelectCarModel(){
+		// 调用 car_info_item setCarBrandName()
+		
+		//api.toast({
+	    //    msg:JSON.stringify(brand_info)
+        //});
+        
+		if(model_info != null){
+			api.execScript({
+				name:'addcar',
+	        	frameName:'car_info_item',
+		        script: 'setCarModelName(' + JSON.stringify(model_info) + ');'
+	        });
+        }
+        
+        api.closeWin({});
+	}
+
+</script>
+</html>

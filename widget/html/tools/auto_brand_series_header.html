@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					
+					<span id="title"></span>
+				</div>
+				
+				<div id="brand_panel" class="auto_brand_item">
+					<img id="brand_logo" class="logo"/>
+					<div id="brand_name" class="name"></div>
+				</div>
+		<div id="main" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		
+		// 工具页面参数
+		var brand_info = api.pageParam;
+		var brand_id = brand_info.brand_id;
+		var logourl = brand_info.logourl;
+		var enname = brand_info.enname;
+		var cnname = brand_info.cnname;
+		
+		$api.byId('title').innerText = '品牌车系';
+		$api.byId('brand_logo').src = logourl;
+		$api.byId('brand_name').innerText = cnname + " " + enname;
+	
+		
+		api.openFrame({
+	        name: 'frame_auto_brand_series_list',
+	        url: 'auto_brand_series_list.html',
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight + $api.byId("brand_panel").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("main").offsetHeight
+	        },
+	        pageParam: brand_info,
+	        bounces:false
+        });
+        
+	};
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+
+</script>
+</html>

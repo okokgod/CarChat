@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		var page_info = api.pageParam;
+		var city_id = page_info.city_id; // 城市编号
+		
+        // 获取应急常识的标题
+        api.ajax({
+	        "url": _server_ip + '/carchat/licence_control_result_list/' + city_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功 
+        	
+        		// ret[0]: 每个月的调控，licence_control表的所有字段，个人摇号中签率(person_yh_rate), 单位摇号中签率(org_yh_rate) 
+        		// ret[1]: 所有竞价中的最大价（包括个人和组织）， 所有竞价中的最小价（包括个人和组织）
+				//         摇号个人数的最大值和最小值，摇号单位数的最大值和最小值，个人中签几率的最大值和最小值，单位中签几率的最大值和最小值
+        	    //         [{"bid_max_price":"45842",
+        	    //          "bid_min_price":"10000",
+        	    //          "max_yh_person_application_count":"651539",
+        	    //          "min_yh_person_application_count":"445534",
+        	    //          "max_yh_org_application_count":"12238",
+        	    //          "min_yh_org_application_count":"2275",
+        	    //          "max_person_yh_rate":"1.140",
+        	    //          "min_person_yh_rate":"0.747",
+        	    //          "max_org_yh_rate":"34.242",
+        	    //          "min_org_yh_rate":"6.055"}]
+        	    
+        		var year_str;
+        		var month_str;
+        		var lic_person_total;
+        		var lic_org_total;
+        		var bid_person_count;
+        		var bid_org_count;
+        		var bid_person_min_price;
+        		var bid_person_ave_price;
+        		var bid_org_min_price;
+        		var bid_org_ave_price;
+        		
+        		var yh_person_count;
+        		var yh_org_count;
+        		
+        		
+        		var all_bid_max_price;
+        		var all_bid_min_price;
+        		all_bid_max_price = ret[1][0].bid_max_price; // 个人和单位竞拍的最高价
+        		all_bid_min_price = ret[1][0].bid_min_price; // 个人和单位竞拍的最低价
+        		
+        		
+        		// 先计算柱状的最短和最长值
+        		var left_block_width = api.winWidth - 131; // 右侧剩余的宽度
+        		var column_min_width = left_block_width * 0.1; // 最短的柱状长度
+        		
+        		// 对竞价，每个价格单位对应的像素
+        		var pix_per_price = left_block_width * 0.8 / (all_bid_max_price - all_bid_min_price);        		
+        		var min_price_column_width; 
+        		var ave_price_column_width;
+
+				var detail_item_html = "";
+				
+				document.body.innerHTML = "";
+				
+				
+				var dt_str; // 日期
+				
+				// =================================================================
+				// 个人竞价部分
+				
+				document.body.innerHTML += "<div class='common_group_name_item'>个人竞拍部分</div>"
+				
+				
+				var lic_person_total_str; // 个人牌照投放数
+				var bid_person_count_str; // 个人竞拍数
+				
+        		var count = ret[0].length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[0][i];
+        			
+        			year_str = row.tk_year;
+        			month_str = row.tk_month;
+        			lic_person_total = row.bid_person_licence_total;
+        			bid_person_count = row.bid_person_count;
+        			
+        			dt_str = year_str + "年" + month_str + "月";
+        			lic_person_total_str = "牌照投放数：" + lic_person_total;
+        			bid_person_count_str = "有效竞拍数：" + bid_person_count;
+        			
+        			
+	    			
+	    			// 每个月的最低价和平均价
+	    			bid_person_min_price = row.bid_person_min_price;
+	    			bid_person_ave_price = row.bid_person_ave_price;
+	    			
+	    			min_price_column_width = Math.round(column_min_width + (bid_person_min_price - all_bid_min_price) * pix_per_price);
+	    			ave_price_column_width = Math.round(column_min_width + (bid_person_ave_price - all_bid_min_price) * pix_per_price);
+	    				    			
+	    			
+	    			detail_item_html  = "<div class='licence_control_result_item'>" +
+        									"<div class='date_block'>" +
+        											 "<div class='year_month'>" + dt_str + "</div>" +
+        											 "<div class='licence_amount'>" + lic_person_total_str + "</div>" +
+        											 "<div class='applicant_amount'>" + bid_person_count_str + "</div>" +
+        									"</div>" +
+        									"<div class='bid_min_price' style='width:" + min_price_column_width + "px'>最低价：" + bid_person_min_price + "</div>" +
+	    									"<div class='bid_ave_price' style='width:" + ave_price_column_width + "px'>平均价：" + bid_person_ave_price + "</div>" +
+	        							"</div>";
+	    			
+	    			document.body.innerHTML += detail_item_html;
+        		}
+        		
+        		// =================================================================
+				// 单位竞价部分
+				
+				document.body.innerHTML += "<div class='common_group_name_item'>单位竞拍部分</div>"
+				
+				var lic_org_total_str; // 单位牌照投放数
+				var bid_org_count_str; // 单位竞拍数
+				
+        		//var count = ret[0].length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[0][i];
+        			
+        			year_str = row.tk_year;
+        			month_str = row.tk_month;
+        			lic_org_total = row.bid_org_licence_total;
+        			bid_org_count = row.bid_org_count;
+        			
+        			dt_str = year_str + "年" + month_str + "月";
+        			lic_org_total_str = "牌照投放数：" + lic_org_total;
+        			bid_org_count_str = "有效竞拍数：" + bid_org_count;
+        			
+        			
+	    			
+	    			// 每个月的最低价和平均价
+	    			bid_org_min_price = row.bid_org_min_price;
+	    			bid_org_ave_price = row.bid_org_ave_price;
+	    			
+	    			min_price_column_width = Math.round(column_min_width + (bid_org_min_price - all_bid_min_price) * pix_per_price);
+	    			ave_price_column_width = Math.round(column_min_width + (bid_org_ave_price - all_bid_min_price) * pix_per_price);
+	    				    			
+	    			
+	    			detail_item_html  = "<div class='licence_control_result_item'>" +
+        									"<div class='date_block'>" +
+        											 "<div class='year_month'>" + dt_str + "</div>" +
+        											 "<div class='licence_amount'>" + lic_org_total_str + "</div>" +
+        											 "<div class='applicant_amount'>" + bid_org_count_str + "</div>" +
+        									"</div>" +
+        									"<div class='bid_min_price' style='width:" + min_price_column_width + "px'>最低价：" + bid_org_min_price + "</div>" +
+	    									"<div class='bid_ave_price' style='width:" + ave_price_column_width + "px'>平均价：" + bid_org_ave_price + "</div>" +
+	        							"</div>";
+	    			
+	    			document.body.innerHTML += detail_item_html;
+        		}
+        		
+        		
+        		
+        		// ============================================================
+        		// 摇号的个人部分
+        		document.body.innerHTML += "<div class='common_group_name_item'>个人摇号部分</div>"
+        		
+        		var lic_yh_person_total;
+        		var yh_person_application_count;
+        		var yh_person_rate;
+        		var lic_yh_person_total_str; // 个人摇号牌照投放数
+				var yh_person_count_str; // 个人摇号申请数
+				
+				// 申请人数最大值和最小值，中签几率的最大值和最小值
+				var yh_person_max_count = ret[1][0].max_yh_person_application_count;
+				var yh_person_min_count = ret[1][0].min_yh_person_application_count;
+				var yh_person_max_rate  = ret[1][0].max_person_yh_rate;
+				var yh_person_min_rate  = ret[1][0].min_person_yh_rate;
+				
+				var person_count_column_width;
+				var person_rate_column_width;
+				
+				var pix_per_person = left_block_width * 0.8 / (yh_person_max_count - yh_person_min_count);  
+				var pix_per_rate = left_block_width * 0.8 / (yh_person_max_rate - yh_person_min_rate);  
+				
+        		//var count = ret[0].length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[0][i];
+        			
+        			year_str = row.tk_year;
+        			month_str = row.tk_month;
+        			lic_yh_person_total = row.yh_person_licence_total;
+        			yh_person_application_count = row.yh_person_application_count;
+        			yh_person_rate = row.person_yh_rate;
+        			
+        			dt_str = year_str + "年" + month_str + "月";
+        			lic_yh_person_total_str = "牌照投放数：" + lic_yh_person_total;
+        				    			
+	    			person_count_column_width = Math.round(column_min_width + (yh_person_application_count - yh_person_min_count) * pix_per_person);
+	    			person_rate_column_width = Math.round(column_min_width + (yh_person_rate - yh_person_min_rate) * pix_per_rate);
+	    				    			
+	    			
+	    			detail_item_html  = "<div class='licence_control_result_item'>" +
+        									"<div class='date_block'>" +
+        											 "<div class='year_month'>" + dt_str + "</div>" +
+        											 "<div class='licence_amount'>" + lic_yh_person_total_str + "</div>" +
+        											 //"<div class='applicant_amount'>" + bid_org_count_str + "</div>" +
+        									"</div>" +
+        									"<div class='bid_min_price' style='width:" + person_count_column_width + "px'>申请数：" + yh_person_application_count + "</div>" +
+	    									"<div class='bid_ave_price' style='width:" + person_rate_column_width + "px'>中签率：" + yh_person_rate + "‰</div>" +
+	        							"</div>";
+	    			
+	    			document.body.innerHTML += detail_item_html;
+        		}
+        		
+        		// ============================================================
+        		// 摇号的单位部分
+        		document.body.innerHTML += "<div class='common_group_name_item'>单位摇号部分</div>"
+        		
+        		var lic_yh_org_total;
+        		var yh_org_application_count;
+        		var yh_org_rate;
+        		var lic_yh_org_total_str; // 单位摇号牌照投放数
+				var yh_org_count_str; // 单位摇号申请数
+				
+				// 申请数最大值和最小值，中签几率的最大值和最小值
+				var yh_org_max_count = ret[1][0].max_yh_org_application_count;
+				var yh_org_min_count = ret[1][0].min_yh_org_application_count;
+				var yh_org_max_rate  = ret[1][0].max_org_yh_rate;
+				var yh_org_min_rate  = ret[1][0].min_org_yh_rate;
+				
+				var org_count_column_width;
+				var org_rate_column_width;
+				
+				var pix_per_org = left_block_width * 0.8 / (yh_org_max_count - yh_org_min_count);  
+				var pix_per_org_rate = left_block_width * 0.8 / (yh_org_max_rate - yh_org_min_rate);  
+				
+        		//var count = ret[0].length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[0][i];
+        			
+        			year_str = row.tk_year;
+        			month_str = row.tk_month;
+        			lic_yh_org_total = row.yh_org_licence_total;
+        			yh_org_application_count = row.yh_org_application_count;
+        			yh_org_rate = row.org_yh_rate;
+        			
+        			dt_str = year_str + "年" + month_str + "月";
+        			lic_yh_org_total_str = "牌照投放数：" + lic_yh_org_total;
+        				    			
+	    			org_count_column_width = Math.round(column_min_width + (yh_org_application_count - yh_org_min_count) * pix_per_org);
+	    			org_rate_column_width = Math.round(column_min_width + (yh_org_rate - yh_org_min_rate) * pix_per_org_rate);
+	    				    			
+	    			
+	    			detail_item_html  = "<div class='licence_control_result_item'>" +
+        									"<div class='date_block'>" +
+        											 "<div class='year_month'>" + dt_str + "</div>" +
+        											 "<div class='licence_amount'>" + lic_yh_org_total_str + "</div>" +
+        											 //"<div class='applicant_amount'>" + bid_org_count_str + "</div>" +
+        									"</div>" +
+        									"<div class='bid_min_price' style='width:" + org_count_column_width + "px'>申请数：" + yh_org_application_count + "</div>" +
+	    									"<div class='bid_ave_price' style='width:" + org_rate_column_width + "px'>中签率：" + yh_org_rate + "‰</div>" +
+	        							"</div>";
+	    			
+	    			document.body.innerHTML += detail_item_html;
+        		}
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	
+	
+</script>
+</html>

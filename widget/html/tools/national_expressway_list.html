@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		
+		
+        // 获取 国家高速列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/national_expressway',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        
+        	document.body.innerHTML = "<center>无数据记录。</center>";
+        
+        	if(ret){ // 成功
+        	
+        		var code = "";
+        		var name = "";
+        		var start_end_city = "";
+        		var middle_city = "";
+        		var mileage = "";
+        		var dir_type  = "";
+        		var pre_dir_type = ""; 
+        		var from_to_city = "";
+        		var mid_city = "";
+        		var total_long = "";
+				
+				var expressway_item_html;
+				
+				var dir_type_item_html = ""; // 方向类型的Item的HTML
+				
+				document.body.innerHTML = "";
+				
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+        			
+        			code = row.code;
+        			name = row.name;
+        			start_end_city = row.start_end_city;
+        			middle_city = row.middle_city;
+        			mileage = row.mileage;
+        			dir_type = row.dir_type;
+        			
+        			dir_type_item_html = "";
+        			
+        			// 
+        			from_to_city = "";
+        			total_long = "";
+        			mid_city = "";
+        			if(start_end_city != null){
+        				from_to_city = start_end_city;
+        			}
+        			if(mileage != null){
+        				total_long = "全长" + mileage;
+        			}
+        			
+        			if(middle_city != null){
+        				mid_city = "途径：" + middle_city;
+        			}
+        			
+        			if(dir_type != pre_dir_type){
+        				dir_type_item_html = "<div class='common_group_name_item'>" + dir_type + "</div>";
+        				pre_dir_type = dir_type;
+        			}
+        			
+        			expressway_item_html  = dir_type_item_html + "<div class='road_item'>" +
+        										"<div class='express_board'>" +
+        											"<div class='code'>" + code + "</div>" +
+        											"<div class='name'>" + name + "</div>" +
+        										"</div>" +
+        										"<div class='express_from_to'>" + from_to_city + "</div>" +
+        										"<div class='express_long'>" + total_long + "</div>" +
+        										"<div class='express_middle_city'>" + mid_city + "</div>" +
+	        								"</div>";
+        			
+        			/*
+        			expressway_item_html  = "<div class='road_item'>" +
+        										"<div class='code'>" + code + "</div>" +
+        										"<div class='name'>" + name + "</div>" +
+        										"<div class='from_to_long'>" + from_to_long + "</div>" +
+        										"<div class='middle_city'>" + mid_city + "</div>" +
+	        								"</div>";
+	    			*/
+	    			
+	    			document.body.innerHTML += expressway_item_html;
+        		}
+        		
+        		//document.body.innerHTML += "</div>";
+        		
+        	}
+        	else{
+        		document.body.innerHTML = "网络异常，请稍后再试。";//JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	function onClickItem(brand_id, enname, cnname, logourl){
+		// 点击一个汽车品牌，显示其详细，及所拥有的车系 left:5px; top:8px; left:65px;top:8px; 
+		
+		var page_info = {'brand_id': brand_id, 'enname': enname, 'cnname': cnname, 'logourl': logourl};
+		
+		api.openWin({
+					name: 'win_auto_brand_series',
+					url: 'auto_brand_series_header.html',
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+				});
+	}
+
+</script>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+        // 获取油价列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/charge_standard',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		//test.innerText = JSON.stringify(ret);
+        		
+        		/*
+        		var name = "";
+        		var descr = "";
+        		var memo = "";
+        		var pic_url = "";
+        		
+        		var name_item = "";
+        		var descr_item = "";
+        		var memo_item = "";
+        		var descr_len = 0; // 收费标准的描述部分的字符串长度
+        		
+        		var item_height = 70;// 条目的最小高度
+        		
+				
+				var charge_standard_item_html;
+				
+				document.body.innerHTML = "<div><div class='charge_standard_item'><center>声明</center><br><center>以下数据仅供参考，请以相关法律法规为准。</center></div>";
+        		
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var charge_standard_row = ret[i];
+        			
+        			name = charge_standard_row.name;
+        			descr = charge_standard_row.description
+        			memo = charge_standard_row.memo;
+        			pic_url = charge_standard_row.pic_url;
+        			
+        			name_item = "";
+        			descr_item = "";
+        			memo_item = "";
+        			
+        			if(name != null) name_item = name;
+        			if(descr != null) { 
+        				//descr_len = parseInt(descr.length / (2 * 30)) + 1;
+        				
+        				// 替换换行和回车
+        				var reg = new RegExp("\r\n", "g");
+        				descr_item = descr.replace(reg, "<br>"); 
+        				
+        				// 计算行数
+        				var reg2 = new RegExp("<br>", "g");
+        				var row_count1 = 0; 
+        				if(descr_item.match(reg2) != null){
+        					row_count1 = descr_item.match(reg2).length;
+        				}
+        				var row_count2 = parseInt(descr.length / (2 * 30)) + 1;
+        				
+        				descr_len = row_count1 > row_count2 ? row_count1 : row_count2;
+        				}
+        			if(pic_url != null) descr_item += "<img src='" + pic_url + "'/>";
+        			if(memo != null) memo_item = "说明: " + memo;
+        			
+        			// 计算条目的合适高度
+        			if(pic_url == null){
+        				item_height = 20 + descr_len * 15 + 30; //(parseInt(descr_len / 30) + 1) * 15 + 20;
+        			}
+        			else{
+        				item_height = 20 + descr_len * 15 + 30 + 30; // (parseInt(descr_len / 30) + 1) * 15 + 30 + 20;
+        			}
+        			if(item_height < 40) item_height = 40; // 最小行高为40px
+        			
+        			charge_standard_item_html = "<div class='charge_standard_item' style='height:" + item_height + "px'>";
+        			charge_standard_item_html += "<div class='name'>" + name_item + "</div>";
+        			charge_standard_item_html += "<div class='standard_descr'>" + descr_item + "</div>";
+        			
+        			charge_standard_item_html += "<div class='memo'>" + memo_item + "</div>";
+        		        			
+	        		charge_standard_item_html += "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += charge_standard_item_html;
+        		}
+        		*/
+        		
+        		var name = "";
+        		var id;
+        		
+        		var charge_standard_item_html;
+				
+				document.body.innerHTML = "<div><div class='common_title_item'><center>声明： 以下数据仅供参考，请以相关法律法规为准。</center></div>";
+        		
+        		
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var charge_standard_row = ret[i];
+        			
+        			id = charge_standard_row.id;
+        			name = charge_standard_row.name;
+        			charge_standard_item_html = "<div class='common_title_item' onclick='onClickItem(" + id + ")'>" +
+        											 "<div class='title'>" + name + "</div>" +
+        											 "<div class='detail_arrow'></div>" +
+	        									     "</div>";
+	        		document.body.innerHTML += charge_standard_item_html;
+        		}
+        		
+        		//document.body.innerHTML += "</div>";
+        		
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+
+	function onClickItem(id){
+	
+		var page_info = {'id': id};
+		
+		var x = api.winWidth * 0.05;
+		var y = 55;//api.winHeight * 0.05; 
+		var w = api.winWidth * 0.9;
+		var h = api.winHeight * 0.6;
+		
+		api.openFrame({
+	        name: 'frame_charge_standard_detail',
+	        url: 'charge_standard_detail.html',
+	        rect: {
+		        'x':x,
+		        'y':y,
+		        'w':w,
+		        'h':h
+	        },
+	        bounces:false,
+	        pageParam: page_info
+        });
+	}
+
+</script>
+</html>

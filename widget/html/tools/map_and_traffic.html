@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+		<div id="map_view" class="flex-con">
+			
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+
+	var bMap = null;
+	
+	apiready = function(){
+			
+		// 打开百度地图
+		
+		var lat, lon;
+		
+		bMap = api.require('bMap');
+		
+		// 先打开地图
+		bMap.open({
+			rect: {
+				        x:0,
+				        y:0, 
+				        w:api.winWidth,
+				        h:api.winHeight
+				    },
+			zoomLevel: 14,
+			showUserLocation: true,
+			fixedOn: api.frameName,
+			fixed: true
+			}, function(ret){
+		});		
+		  	
+		// 定位至当前位置
+		bMap.getLocation({
+				accuracy: '1km',
+				autoStop: true,
+				filter: 1
+		}, function(ret, err) {
+				if (ret.status) { // 获取位置成功
+						    	
+					// 获取返回的经纬度
+					lon = ret.lon; // 经度
+					lat = ret.lat; // 纬度
+						    	
+					// 定位至当前位置
+					bMap.setCenter({
+	                      coords: {
+		                     lon: lon,
+		                     lat: lat
+	                      },
+	                      animation: false
+                   });
+                   
+                   
+				}
+		});
+		
+		// 设置缩放范围
+        bMap.setZoomLevel({level:14});
+                   
+        // 开启普通地图和实时路况
+		bMap.setMapAttr({type:'trafficOn'});
+		
+		
+		// ===========================================
+		// 新建一个frame，用于地图上放置浮动按钮
+		// 工具页面参数
+		
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title;
+		var tool_frame_name = tool_info.frame_name;
+		var tool_frame_url = 'map_float_toolbars.html'; //tool_info.frame_url;
+			
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:api.winWidth - 56,
+		        y:30, //$api.byId("toptoolbar").offsetHeight,
+		        w:36, //api.winWidth,
+		        h:138 //$api.byId("main").offsetHeight
+	        },
+	        bounces:false,
+	        pageParam:tool_info
+        });
+        
+	};
+	
+	function setTraffic(flag){
+		var f = true;
+		if(flag == 0) f = false;
+		
+		if(bMap){
+			bMap.setTraffic({
+	      	    traffic: f
+            });
+		}
+	}
+	
+	function zoomIn(){
+		if(bMap){
+			bMap.zoomIn();
+		}
+	}
+	
+	function zoomOut(){
+		if(bMap){
+			bMap.zoomOut();
+		}
+	}
+
+</script>
+</html>

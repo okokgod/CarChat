@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>底部导航</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
+    <style>
+        header{ background-color: #f2f2f2; }
+        header ul li { height: 50px; line-height: 50px; text-align: center; display: none; color: #323237; position: relative;font-size: 18px;  }
+        header ul li.active{ display: block; }
+        #footer{  background-color: #f2f2f2; }
+        #footer ul li{  padding-top: 36px; padding-bottom: 4px; background: url() no-repeat center 2px; background-size: auto 30px; text-align: center; }
+        #footer ul li.active{ color: #6ab494; }
+        #footer ul li:nth-child(1){ background-image: url(./image/bottombtn0101.png); }
+        #footer ul li:nth-child(2){ background-image: url(./image/bottombtn0201.png); }
+        #footer ul li:nth-child(3){ background-image: url(./image/bottombtn0301.png); }
+        #footer ul li:nth-child(4){ background-image: url(./image/bottombtn0401.png); }
+        #footer ul li:nth-child(1).active{ background-image: url(./image/bottombtn0102.png); }
+        #footer ul li:nth-child(2).active{ background-image: url(./image/bottombtn0202.png); }
+        #footer ul li:nth-child(3).active{ background-image: url(./image/bottombtn0302.png); }
+        #footer ul li:nth-child(4).active{ background-image: url(./image/bottombtn0402.png); }
+    </style>
+</head>
+<body>
+<div id="mainwrap">
+
+</div>
+</body>
+</html>
+<script type="text/javascript" src="script/api.js"></script>
+<script type="text/javascript" src="script/SHA1.js"></script>
+<script type="text/javascript" src="script/carchat.js"></script>
+<script type="text/javascript">
+    apiready = function () {
+    
+    	// 先设置appId, appKey
+    	var appId = "A6919242691020";
+    	var now = Date.now();
+		var appKey = SHA1(appId+"UZ"+"ABC24BC7-7D95-5157-1A9A-F38021F7F250"+"UZ"+now)+"."+now;
+		$api.setStorage("appId",appId);
+		$api.setStorage("appKey", appKey);
+		
+		var m = api.require('model');
+		m.config({
+	        appKey:'ABC24BC7-7D95-5157-1A9A-F38021F7F250',
+	        host:'https://d.apicloud.com'
+        });
+    
+    
+    	var winName;
+    	var firstUrl;
+    
+    	// 先判断是否已经登录
+    	var uid = $api.getStorage('uid'); // 用户ID
+    	var token = $api.getStorage('token'); // Token
+    	if(uid != null && token != null) // 已经登录，直接打开主页面
+    	{
+    		winName = "main";
+    		firstUrl = 'html/main.html';
+    	}
+    	else {
+    		winName = "login";
+    		firstUrl = 'html/login.html'; // 否则打开登录页面
+    	}
+    
+    	//api.closeWin();
+    
+    
+    	api.openWin({
+	        name: winName,
+	        url: firstUrl,
+	        rect:{x:0,y:0,w:'auto',h:'auto'},
+	        bounces:false,
+	        delay:200
+        });
+        
+        
+    	
+    	
+    	/*
+        api.openFrame({
+	        name: "mainwrap",
+	        url: firstUrl,
+	        rect: {
+		        x:0,
+		        y:0,
+		        w:'auto',
+		        h:'auto'
+	        }
+        });
+        */
+    }
+    
+    function isLogin(){
+    	// 判断是否已经登录过
+    	
+    }
+</script>

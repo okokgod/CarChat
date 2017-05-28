@@ -1,0 +1,175 @@
+<!DOCTYPE html>  
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>车</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/carchat.css"/>
+    <style>
+        .empty{ text-align: center; padding: 120px 0; }
+    </style>
+</head>
+<body>
+	
+	<div style="padding: 10px">
+		<center><img src="../image/loading_more.gif" /></center><br />
+		<center>加载中...</center>
+	</div>
+	
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+
+	apiready = function(){
+		loadUserCars();
+	}
+	
+	function loadUserCars(){
+		// 获取当前登陆用户所属的车辆列表
+		
+		/*
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'读取车辆',
+			text:'请稍候...',
+			modal:true
+        });
+        */
+       
+        //document.body.innerHTML = ""; // 先清空列表
+        
+        div_car_list = $api.byId('car_list');
+        
+		api.ajax({
+	        "url": _server_ip + '/carchat/usercar/' + userId,
+	        //"url":'http://192.168.1.104:8099/carchat/usercar/575a6af09ccc7faf4fb7ba3d',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	// 关闭进度提示
+        	//api.hideProgress();
+        		
+	        	if(ret){ // 成功
+	        		//test.innerText = JSON.stringify(ret);
+	        		
+	        		document.body.innerHTML = ""; // 先清空列表
+	        		
+	        		var l = ret.length;
+	        		if(l > 0){
+		        		for(var i = 0;i < l; i++){
+		        			addOneCarItem(ret[i]);
+		        		}
+	        		}
+		        	else{
+		        		document.body.innerHTML = "<div class='empty'>无车辆数据</div>";
+		        	}
+        	}//"<div class='empty'>加载数据出错</div>"; //
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+	}
+	
+	function loadUserOneCar(car_id){
+		// 当前登陆用户所属的车辆列表追加一辆车
+		
+		var data = {values:{'user_id':userId, 'car_id':car_id}};
+		
+		api.ajax({
+	        "url": _server_ip + '/carchat/user_one_car/',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data":data
+        },function(ret,err){
+
+	        	if(ret.length == 1){ // 成功
+	        		
+	        		addOneCarItem(ret[0]);
+	        		
+	        	}
+        	
+        });
+	}
+	
+	
+	
+	function addOneCarItem(car_info){
+		// 在车辆列表上增加一个辆车
+		// car_info: {'user_id': , 'car_id', 'car_mark':, 'main_cn_name': , 'sub_cn_name':, 'logourl':, 'relation_type'}
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_str = JSON.stringify(car_info);
+		var car_id = car_info.car_id;
+		var car_mark = car_info.car_mark;
+		var car_model_main_cn_name = car_info.series_cn_name;
+		var car_model_sub_cn_name = car_info.model_name;
+		var car_brand_logo = car_info.logourl;
+		var car_news = car_info.news;
+		var car_user_rel_type = car_info.relation_type;
+		
+		
+		//div_car_list = $api.byId('car_list');
+		
+		var car_item_html = "<div id='car_item_div_" + car_id + "' class='carchat_car_item' onclick='selectOneCar(" + car_id + ")'>" +
+    						"<div class='car_mark'>" + car_mark + "</div>" +
+    						"<div class='car_series'>" + car_model_main_cn_name +  "</div>" +
+    						"<div class='car_news'><marquee direction='left' scrollamount='2'>" + car_news + "</marquee></div>" +
+    						"<img class='auto_brand_logo' src='" + car_brand_logo + "' />" +
+    						"<img class='car_news_icon' src='../image/car_news.png' />" +
+    						"<input type='hidden' id='car_" + car_id + "' value='" + car_info_str +"'/>"+
+    						"</div>";
+    	document.body.innerHTML += car_item_html;
+	}
+	
+	
+	function removeCarItem(car_id){
+		// 删除一个车条目
+		var car_item_div = $api.byId('car_item_div_' + car_id);
+		if(car_item_div){
+			document.body.removeChild(car_item_div);
+		}
+	}
+	
+	
+	
+	function selectOneCar(car_id){
+		// 选择一辆车，打开详细
+		// car_info: {'user_id': , 'car_id', 'car_mark':, 'main_cn_name': , 'sub_cn_name':, 'logourl':, 'relation_type'}
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		
+		
+		
+		var car_info_str = $api.byId("car_" + car_id).value;
+				
+		var car_info_json = JSON.parse(car_info_str);
+		// 把当前选中的车辆信息保存至本地, JSON
+		$api.setStorage('current_car_info',car_info_json);
+		
+		api.openWin({
+		        name: 'car_info_main',
+		        url: 'carinfo/car_info_main.html',
+		        rect:{x:0,y:0,w:'auto',h:'auto'},
+		        bounces:false,
+		        delay:200
+		        //pageParam:{"car_info":car_info_json}
+	        });
+		
+	}
+	
+</script>
+</html>

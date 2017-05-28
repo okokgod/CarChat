@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	
+	<div id="function_list">
+
+		<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+		</div>
+		<!--http://a4a0061b11f98dad14b5.b0.upaiyun.com/apicloud/68a38687c7fa6156ae7499a106604d59.gif
+		<div class="car_function_item_first_row">
+			<div class="car_function_item_cell1">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function1.png"/></center>
+				<center><span class="function_name">功能1</span></center>
+			</div>
+			<div class="car_function_item_cell1">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function2.png"/></center>
+				<center><span class="function_name">功能2</span></center>
+			</div>
+			<div class="car_function_item_cell1">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function3.png"/></center>
+				<center><span class="function_name">功能3</span></center>
+			</div>
+			<div class="car_function_item_cell4">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function4.png"/></center>
+				<center><span class="function_name">功能4</span></center>
+			</div>
+		</div>
+		
+		<div class="car_function_item_row">
+			<div class="car_function_item_cell1">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function5.png"/></center>
+				<center><span class="function_name">功能5</span></center>
+			</div>
+			<div class="car_function_item_cell1">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function6.png"/></center>
+				<center><span class="function_name">功能6</span></center>
+			</div>
+			<div class="car_function_item_cell1">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function7.png"/></center>
+				<center><span class="function_name">功能7</span></center>
+			</div>
+			<div class="car_function_item_cell4">
+				<center><img class="function_icon" src="../../image/car_function_icon/car_function8.png"/></center>
+				<center><span class="function_name">功能8</span></center>
+			</div>
+		</div>
+		-->
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+	
+		var appId = $api.getStorage("appId");
+    	var appKey = $api.getStorage("appKey");
+		
+		// 从本地存储中获取当前选中的车辆信息， JSON
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		// 用户与车的关联类型, 1或2
+		var user_car_relation_type = car_info_json.relation_type; 
+		
+		// 根据关联类型，获取所能用的汽车管理功能
+		var data = {values:{'right_type':user_car_relation_type}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_function',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	
+        	var list_div = $api.byId('function_list');
+        	
+        	if(ret){
+        		
+        		list_div.innerHTML = "";
+        		
+        		var row_div_class = "car_function_item_first_row";
+        		var cell_div_class = "car_function_item_cell1";
+        		
+        		var row_div_str = "";
+        		var cell_div_str = "";
+        		
+        		var icon_file_name = "";
+        		var function_title = "";
+        		var function_name = "";
+        		var header_url = "";
+        		var frame_url = "";
+        		var click_func_param = "";
+        		
+        		var l = ret.length;
+        		for(var i = 0; i < l; i++){
+        		 
+        			icon_file_name = ret[i].icon_file; // ICON文件名称
+        			function_title = ret[i].title; // 功能标题
+        			function_name  = ret[i].name; 
+        			header_url = ret[i].master_url;
+        			frame_url = ret[i].frame_url;
+        			
+        			click_func_param = "'" + function_name + "', '" + function_title + "', '" + header_url + "', '" + frame_url + "'";
+        			
+        		
+        			var r =  i % 4; // r = 0, 1, 2, 3
+        			if(r == 3){//一行中最右边的单元
+        				cell_div_class = "car_function_item_cell4";
+        			}
+        			else{
+        				cell_div_class = "car_function_item_cell1";
+        			} 
+        			
+        			cell_div_str = "<div class='" + cell_div_class + "' onclick=\"onClickCarFunction(" + click_func_param + ")\">" +
+        						   "<center><img class='function_icon' src='../../image/car_function_icon/" + icon_file_name + "'/></center>" +
+								   "<center><span id='function_" + function_name + "' class='function_name'>" + function_title + "</span></center>" +
+								   "</div>";
+        			
+        			if(r == 0){ // 新的一行
+        				if(i == 0){ // 第一行
+	        				row_div_class = "car_function_item_first_row";
+	        			}
+	        			else{ // 第二行开始
+	        				row_div_class = "car_function_item_row";
+	        			}
+        			
+        				row_div_str += "<div class='" + row_div_class + "'>";
+        				row_div_str += cell_div_str;
+        			}
+        			else{
+        				row_div_str += cell_div_str;
+        				
+        				if(r == 3 || i == l - 1){ // 一行结束
+        					row_div_str += "</div>";
+        				}
+        			}
+        			
+        			
+        		}
+        		list_div.innerHTML += row_div_str;
+        	}
+        	else{
+        		list_div.innerHTML = JSON.stringify(err);
+        	}
+        
+        });
+	};
+	
+	function onClickCarFunction(function_name, function_title, header_url, frame_url){
+		// 点击一个功能
+		
+		// 功能标题
+		var win_name = 'tool_win_' + function_name;
+		
+		var page_info = {'title': function_title, 
+						 'win_name': win_name,
+			             'frame_name': 'frame_' + function_name, 
+			             'frame_url': frame_url,
+			             'function_name': function_name};
+		
+		if(header_url != ''){
+					api.openWin({
+					     name: win_name,
+					     url: header_url,
+					     rect:{x:0,y:0,w:'auto',h:'auto'},
+					     bounces:false,
+					     pageParam: page_info
+				        });
+		}
+	}
+	
+	function onClickCarFunction0(function_name){
+		// 点击一个功能
+		
+		// 功能标题
+		var title_span = $api.byId('function_' + function_name);
+		var function_title = title_span.innerText;
+		var win_name = 'tool_win_' + function_name;
+		
+		var frame_url = '';
+		var header_url = '';
+		
+		if(function_name == 'friend_attention'){ // 车友关注
+		
+			frame_url = '../carinfo/car_friend_attention_list.html';
+			header_url = '../common/tool_common_header.html';
+		} 
+		else if(function_name == 'news'){ // 车辆最新动态
+			frame_url = 'car_news_list.html';
+			header_url = 'car_news_header.html';
+
+		}
+		else if(function_name == 'basic_info'){ // 车辆基本信息
+			frame_url = 'car_basic_info_list.html';
+			header_url = 'car_basic_info_header.html';
+
+		}
+		else if(function_name == 'washing' || // 洗车记录
+		        function_name == 'refuel' || // 加油记录
+		        function_name == 'using' ||  // 用车记录
+		        function_name == 'maintance'|| // 保养
+		        function_name == 'repair' || // 维修
+		        function_name == 'peccancy' || // 违章
+		        function_name == 'toll' || // 路桥费
+		        function_name == 'self_travel' || // 自驾游
+		        function_name == 'converting' || // 改装
+		        function_name == 'yearly_inspection' || // 年检
+		        function_name == 'accident' || // 事故
+		        function_name == 'buy_insurance' || // 买险
+		        function_name == 'use_insurance' || // 用险
+		        function_name == 'accessory' // 汽车用品
+		        ){ 
+			
+			frame_url = 'car_common_record_list.html';
+			header_url = 'car_common_record_header.html';
+
+		}
+		
+		var page_info = {'title': function_title, 
+						 'win_name': win_name,
+			             'frame_name': 'frame_' + function_name, 
+			             'frame_url': frame_url,
+			             'function_name': function_name};
+		
+		if(header_url != ''){
+					api.openWin({
+					     name: win_name,
+					     url: header_url,
+					     rect:{x:0,y:0,w:'auto',h:'auto'},
+					     bounces:false,
+					     pageParam: page_info
+				        });
+		}
+	}
+</script>
+</html>

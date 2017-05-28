@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	
+    	.divider {height: 15px;}
+    	input {height: 40px;font-size: 16px;color: #8E8C8C;width: 80%;outline: none;}
+		input::-webkit-input-placeholder {color: #ccc;}
+		
+		header{ background-color: #f2f2f2; }
+        header ul li { height: 50px; line-height: 50px; text-align: center; display: block; color: #323237; position: relative;font-size: 18px;  }
+    </style>
+</head>
+<body>
+
+
+<div id="wrap" class="flex-wrap flex-vertical">
+
+	<div id="toptoolbar" class="carchat_header">
+		<div class="left" onclick="goBack()"><img src="../../image/back.png"></div>
+		<div class="right" onclick="popupMenu()"><img src="../../image/more.png"></div>
+		<span id="title"></span>
+	</div>
+
+	<div id="car_function_list" class="flex-con">
+			
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+
+		// 从本地存储中获取车辆信息， JSON
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_mark = car_info_json.car_mark;
+		
+		// 显示标题
+		$api.byId('title').innerText = car_mark;
+
+        api.openFrame({
+	        name: 'car_function_list',
+	        url: 'car_function_list.html',
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("car_function_list").offsetHeight
+	        },
+	        bounces:false
+        });
+        
+	};
+	
+	function goBack(){ // 取消
+		api.closeWin({
+        });
+	}
+	
+	function popupMenu(){
+		// 快捷菜单
+		
+		// 根据当前用户与当前车辆的关联关系弹出“删除车辆”、“取消关注”
+		
+		// 车的基本信息
+		var car_info_json = $api.getStorage('current_car_info');
+		var relation_type = car_info_json.relation_type;
+		var user_id = car_info_json.user_id;
+		var car_id = car_info_json.car_id;
+		var car_mark = car_info_json.car_mark;
+		
+		var menuItems;
+		var f; // 菜单功能
+		if(relation_type == 1){
+			menuItems = [{title:'删除车辆', icon:'widget://image/delete.png'}];
+			
+			f = function(ret){
+				if (ret) {
+	               // ret: {index:1, eventType:click}
+	               if(ret.eventType == 'click'){
+	               		
+	               		if(ret.index == 0){
+	               			api.confirm({
+	               				title:'删除车辆',
+	               				msg:'确定要删除车辆[' + car_mark + ']吗？',
+	               				buttons:['确定','取消']
+                               },function(ret,err){
+                               		if(ret.buttonIndex == 1){ // 确定删除
+                               			// 显示进度
+                               			api.showProgress({
+											style:'default',
+											animationType:'fade',
+											title:'',
+											text:'正在删除' + car_mark ,
+											modal:true
+								        });
+                               			
+                               			var data = {values:{"user_id":user_id, "car_id":car_id}};
+                               			api.ajax({
+									        "url":_server_ip + '/carchat/delete_user_own_car',
+									        "method": "POST",
+								      		"cache": false,
+								      		"headers": {
+								        		"X-APICloud-AppId": appId,
+								        		"X-APICloud-AppKey": appKey
+								      		},
+								      		"data": data
+								        },function(ret,err){
+								        	
+								        		api.hideProgress(); // 关闭进度提示
+								        		
+								        		api.toast({
+	                                                msg:'删除车辆成功。',
+	                                                location:'middle',
+	                        						duration:1500
+                                                });
+								        		
+								        		api.execScript({
+								        			name:'main',
+								        			frameName: 'my_car_list',
+	                                                script: 'removeCarItem(' + car_id + ');'
+                                                });
+								        		
+								        		
+								        		// 返回上主页
+								        		goBack();
+								        		
+								        		/*
+								        		api.alert({
+								        			msg: JSON.stringify(ret) + JSON.stringify(err)
+                                                },function(ret,err){
+                                                	//coding...
+                                                });
+								        		*/
+								        });
+                               		}
+                               });
+	               		}
+	               }
+			    }
+			};
+		}
+		else if(relation_type == 2){
+			menuItems = [{title:'取消关注', icon:'widget://image/cancel_attention.png'}];
+			
+			f = function(ret){
+				if (ret) {
+	               // ret: {index:1, eventType:click}
+	               if(ret.eventType == 'click'){
+	               		
+	               		if(ret.index == 0){
+	               			api.confirm({
+	               				title:'取消关注',
+	               				msg:'确定要取消关注[' + car_mark + ']吗？',
+	               				buttons:['确定','取消']
+                               },function(ret,err){
+                               		if(ret.buttonIndex == 1){ // 确定删除
+                               			// 显示进度
+                               			api.showProgress({
+											style:'default',
+											animationType:'fade',
+											title:'',
+											text:'正在取消' + car_mark ,
+											modal:true
+								        });
+                               			
+                               			var data = {values:{"user_id":user_id, "car_id":car_id}};
+                               			api.ajax({
+									        "url":_server_ip + '/carchat/delete_user_attend_car',
+									        "method": "POST",
+								      		"cache": false,
+								      		"headers": {
+								        		"X-APICloud-AppId": appId,
+								        		"X-APICloud-AppKey": appKey
+								      		},
+								      		"data": data
+								        },function(ret,err){
+								        	
+								        		api.hideProgress(); // 关闭进度提示
+								        		
+								        		api.toast({
+	                                                msg:'取消关注车辆成功。',
+	                                                location:'middle',
+	                        						duration:1500
+                                                });
+								        		
+								        		api.execScript({
+								        			name:'main',
+								        			frameName: 'my_car_list',
+	                                                script: 'removeCarItem(' + car_id + ');'
+                                                });
+								        		
+								        		
+								        		// 返回上主页
+								        		goBack();
+								        });
+                               		}
+                               });
+	               		}
+	               }
+			    }
+			};
+		}
+		
+		var w = 150;
+        var h = 50;
+        var x = api.winWidth - 10;
+        var y = $api.byId('toptoolbar').offsetHeight + 15;
+        
+        
+        var mnPopups = api.require('MNPopups');
+		mnPopups.open({
+		    rect: {
+		        w: w,
+		        h: h
+		    },
+		    position: {       
+		        x: x, 
+		        y: y      
+		    },
+		    styles: {
+		        mask: 'rgba(0,0,0,0)',
+		        bg: '#404040',                        
+		        cell: {                            
+		            bg:{
+		                normal: '',              
+		                highlight: ''            
+		            },                   
+		            h: 45,                         
+		            title: {                      
+		                marginL: 45,               
+		                color: '#FFFFFF',          
+		                size: 16,                 
+		            },
+		            icon: {                        
+		                marginL: 10,               
+		                w: 25,                     
+		                h: 25,                     
+		                corner: 2                  
+		            }
+		        }
+		    },
+		    datas: menuItems,
+		    animation: true,
+		    pointer: {
+	            size: 1,                     
+	            xPercent: 90,                
+	            yPercent: 0,                 
+	            orientation: 'downward'
+        	}
+		}, f);
+		
+		/*
+		function(ret) {
+		    if (ret) {
+               // ret: {index:1, eventType:click}
+               if(ret.eventType == 'click'){
+               		
+               		if(ret.index == 0){
+               			api.openWin({
+					        name: 'addcar',
+					        url: 'addcar/add_my_car.html',
+					        rect:{x:0,y:0,w:'auto',h:'auto'},
+					        bounces:false
+					        //delay:200
+				        });
+               		}
+               }
+		    }
+		});
+		*/
+	}
+
+</script>
+</html>

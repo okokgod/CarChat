@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+        // 获取油价列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/oil_price_list',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		//test.innerText = JSON.stringify(ret);
+        		var province_name = "";
+        		var oil_item1 = "";
+        		var oil_item2 = "";
+        		var oil_item3 = "";
+        		var oil_item4 = "";
+        		var rep_time = "";
+        		
+        		var oil_names = ['oil0', 'oil89', 'oil90', 'oil92', 'oil93', 'oil95', 'oil97'];
+				//var oil_cn_names = ['0#柴油', '89#汽油', '90#汽油', '92#汽油', '93#汽油', '95#汽油', '97#汽油'];
+				
+				var oil_price_item_html;
+				
+				document.body.innerHTML = "<div class='oil_price_item_declare'>声明<br>以下数据仅供参考，请以您所在地区的加油站报价为准</div>";
+        		
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var oil_price_row = ret[i]; // 每一个省的油价,JSON, {province_name:, oil0: ....}
+        			
+        			province_name = oil_price_row.province_name;
+        			
+        			// 先把每个省的油价JSON数据变为字符串
+        			var province_oil_info_JSON_str = JSON.stringify(oil_price_row);
+        			province_oil_info_JSON_str = province_oil_info_JSON_str.replace(/"/g, "'");
+        		
+        			
+        			oil_price_item_html  = "<div class='oil_price_item' onclick=\"clickProvinceOilPriceImte(" + province_oil_info_JSON_str + ")\">";
+        			//oil_price_item_html  = "<div class='oil_price_item'>";
+        			oil_price_item_html += "<div class='province'>" + province_name + "</div>";
+        			
+        			var oil_name = "";
+        			var oil_cn_name = "";
+        			var oil_price = "";
+        			var price_unit = "";
+        			var update_time = "";
+        			
+        			update_time = oil_price_row.update_time; // 更新时间
+        			
+        			var one_oil_price_line_str = "";
+        			// 遍历每一油品
+        			var top = 0;
+        			
+        			for(var j = 0; j < 7; j++){
+        				oil_name = oil_names[j];
+        				oil_cn_name = oil_price_row[oil_name];
+        				oil_price = oil_price_row[oil_name + '_price'];
+        				price_unit = oil_price_row[oil_name + '_unit'];
+        				one_oil_price_line_str = oil_cn_name + "：" + oil_price + " " + price_unit;
+        				
+        				top = 5 * (j + 1) + j * 15;
+        				oil_price_item_html += "<div class='oil_name' style='top:" + top + "px'>" + oil_cn_name + "</div>";
+        				oil_price_item_html += "<div class='oil_price' style='top:" + top + "px'>" + oil_price + "</div>";
+        				oil_price_item_html += "<div class='price_unit' style='top:" + top + "px'>" + price_unit + "</div>";
+        			}
+        			top = 5 * (7 + 1) + 7 * 15;
+        			oil_price_item_html += "<div class='update_time' style='top:" + top + "px'>更新时间：" + update_time + "</div>";
+        			
+        			oil_price_item_html += "<div class='cal_cost'></div>";
+        			
+	        		oil_price_item_html += "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += oil_price_item_html;
+        		}
+        		
+        		//document.body.innerHTML += "</div>";
+        		
+        		// 关闭进度提示
+        		//api.hideProgress();
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	function clickProvinceOilPriceImte(province_oil_info_JSON_str){
+		//api.pageParam = {'oil_info':province_oil_info_JSON_str};
+		
+		var tool_title = "加油测算";
+		var win_name = "win_refual_calculate";
+		var frame_name = "frame_refual_calculate";
+		var frame_url = "../tools/refual_calculate.html";
+		
+		var page_info = {'title': tool_title, 
+			'win_name': win_name,
+			'frame_name': frame_name, 
+			'frame_url': frame_url,
+			'oil_info': province_oil_info_JSON_str};
+			
+		var master_url = "../common/tool_common_header.html";
+		
+		api.openWin({
+					name: win_name,
+					url: master_url,
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+		});
+		
+		/*
+		api.alert({
+			msg:province_oil_info_JSON_str
+        },function(ret,err){
+        	//coding...
+        });
+        */
+	}
+	
+</script>
+</html>

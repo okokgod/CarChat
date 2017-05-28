@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		
+		
+        // 获取汽车排行榜的分类
+        api.ajax({
+	        "url": _server_ip + '/carchat/auto_ranking_category',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		
+        		// ret: [{id, ranking_dt, 0, 1, 3}, ...]
+        		
+        		
+        		
+        		var ranking_category_id;
+        		var ranking_dt;
+        		var ranking_category_name;
+        		var category_count;
+        		var category_item_height;
+        		var category_item_height2;
+
+				var ranking_category_item_html = "";
+				
+				document.body.innerHTML = "";
+				
+				
+				
+        		var count = ret.length;
+        		//for(var i = 0; i < count; i++)
+        		for(var k in ret[0])
+        		{
+        			
+        			
+        			
+        			var row = ret[0][k];
+        			//ranking_category_id = row.id;
+        			ranking_dt = row.ranking_dt;
+        			
+        			category_count = getJsonLength(row) - 1;
+        			
+        			category_item_height = category_count * 40;
+        			category_item_height2 = category_item_height - 1;
+        			//onclick=\"onClickItem(" + city_id + ", '" + city_name + "')\"
+        			//  
+        			ranking_category_item_html  = "<div class='auto_ranking_category_item' style='height:" + category_item_height + "px'>" +
+        										  "<div class='date_block' style='height:" + category_item_height2 + "px;line-height:" + category_item_height2 + "px'>" + ranking_dt +
+        										  		
+        										  "</div>";
+        			var w = api.winWidth - 130;
+        			ranking_category_item_html += "<div class='category_items_block' style='width:" + w + "px;height:" + category_item_height + "px'>";
+        			
+        			for(var j = 0; j < category_count; j++){
+        				ranking_category_id = row[j].id;
+        				ranking_category_name = row[j].category_name;
+        				
+        				ranking_category_item_html +=   "<div class='category_item_item' onclick=\"onClickItem(" + ranking_category_id + ", '" + ranking_dt + ranking_category_name + "')\">" +
+        											  		"<div class='title'>" + ranking_category_name + "</div>" +
+        											  		"<div class='detail_arrow'></div>" +
+        											  	"</div>";
+        											  
+        			}					
+        			
+        			ranking_category_item_html += "</div>";
+        			
+        			ranking_category_item_html += "</div>";
+	    			
+	    			document.body.innerHTML += ranking_category_item_html;
+        		}
+        		        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	function onClickItem(ranking_category_id, category_name){
+	
+		var tool_title = category_name;
+		var win_name = "win_auto_sale_ranking";
+		var frame_name = "frame_auto_sale_ranking";
+		var frame_url = "../tools/auto_sale_ranking_list.html";
+		
+		var page_info = {'title': tool_title, 
+			'win_name': win_name,
+			'frame_name': frame_name, 
+			'frame_url': frame_url,
+			'ranking_category_id': ranking_category_id};
+			
+		var master_url = "../common/tool_common_header.html";
+		
+		api.openWin({
+					name: win_name,
+					url: master_url,
+					rect:{x:0,y:0,w:'auto',h:'auto'},
+					bounces:false,
+					pageParam: page_info
+		});
+	}
+</script>
+</html>

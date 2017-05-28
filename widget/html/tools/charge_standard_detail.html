@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		border: 1px solid #CCCCCC;
+    		border-radius:10px;
+    		background-color: #E0E0E0;
+    	}
+    </style>
+</head>
+<body onclick="closeFrame()">
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		var page_info = api.pageParam;
+		var id = page_info.id; // 收费标准条目的ID
+		
+        // 获取收费标准的内容
+        api.ajax({
+	        "url": _server_ip + '/carchat/charge_standard_item/' + id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        	
+        		var name = "";
+        		var descr = "";
+        		var memo = "";
+        		var pic_url = "";
+        		
+        		var detail_img_html = "";
+        		var memo_html = "";
+				
+				var item_html;
+				
+				document.body.innerHTML = "";
+				
+        		var count = ret.length;
+        		//for(var i = 0; i < count; i++)
+        		if(count == 1)
+        		{
+        			var row = ret[0];
+        			
+        			name = row.name;
+        			descr = row.description
+        			memo = row.memo;
+        			pic_url = row.pic_url;
+        			
+        			var reg = new RegExp("\r\n", "g");
+        			descr = descr.replace(reg, "<br>"); 
+        			
+        			if(pic_url != null) detail_img_html += "<img class='charge_standard_item_detial_img' src='" + pic_url + "'/>";
+        			if(memo != null) memo_html = "<div class='charge_standard_item_detial_memo' onclick='closeFrame()'>" + memo + "</div>";
+        		
+        			item_html  = "<div class='charge_standard_item_detial_name' onclick='closeFrame()'>" + name + "</div>" +
+        						 "<div class='charge_standard_item_detial_content' onclick='closeFrame()'>" + descr + "</div>" +
+        						 detail_img_html + 
+        						 memo_html;
+	        									     
+	    			document.body.innerHTML += item_html;
+        		}
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	function closeFrame(){
+		/*
+		api.alert({
+			msg:'fsdfs'
+        },function(ret,err){
+        	//coding...
+        });name:'frame_emergency_knowledge_detail'
+        */
+		api.closeFrame({});
+	}
+</script>
+</html>

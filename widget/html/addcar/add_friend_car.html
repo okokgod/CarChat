@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.divider {height: 15px;}
+    	input {height: 50px;font-size: 16px;color: #8E8C8C;width: 80%;outline: none;}
+		input::-webkit-input-placeholder {color: #ccc;}
+		.search_btn{top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;right:5px;background-color:#42BD41;color:#FFFFFF}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+	<div id="toptoolbar" class="carchat_header">
+		<div class="left" onclick="goBack()"><img src="../../image/back.png"></div>
+		<div class="right" id="btn_ok" onclick="save()">确定</div>
+			添加朋友的车辆
+	</div>
+
+	<div class="flex-con">
+		<div class="carchat_input_item">
+			<input type="text" id="carmark" placeholder="车牌号  [必填]"/>
+			<div class="search_btn" onclick="searchCars()">搜索</div>
+		</div>
+	
+		<div id="car_radio_list"></div>
+		
+		<div class="divider"></div>
+		<div id="div_prompt" style="text-align: center"></div>
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var uId = $api.getStorage("uid");
+    
+    var _selected_car_id = null;
+
+	apiready = function(){
+		
+	};
+	
+	function goBack(){
+		api.closeWin({});
+	}
+	
+	function searchCars(){
+		// 根据输入的车牌号，搜索车辆
+		
+		var car_mark = $api.byId("carmark").value;
+		
+		if(car_mark) car_mark = $api.trim(car_mark);
+		if(car_mark == ""){div_prompt.innerText = "请输入车牌号"; return;}
+		//{api.toast({msg:'请输入车牌号',location:'middle'}); return;}
+		
+		div_prompt.innerText = ""; // 清空提示
+		car_radio_list.innerHTML = "";
+		_selected_car_info = null; // 清除当前选中的车辆车牌号 {car_id, car_mark}
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+		
+		
+		var data = {values:{"car_mark":car_mark}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/cars_by_mark',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	api.hideProgress();// 关闭进度显示
+        	
+        	if(ret){
+        		var count = ret.length;
+        		if(count == 0){ // 没有找到车辆
+        			div_prompt.innerText = "没有找到车辆【" + car_mark + "】。";
+        		}
+        		else if(count > 0){ // 找到车辆
+        		
+        			car_radio_list.innerHTML = "<form>";
+        			
+        			var a_car_info;
+        			var desc;
+        			var car_id;
+        			var car_mark2;
+        			var car_info;
+        			
+        			for(var i = 0; i < count; i++){
+        				
+        				a_car_info = ret[i];
+        				car_id = a_car_info.car_id;
+        				car_mark2 = a_car_info.car_mark;
+        				//car_info = {'car_id': car_id, 'car_mark':car_mark2};
+        				
+        				desc = "【<font color='red'>" + car_mark2 + "</font>】 " + a_car_info.brand_cn_name + " - " + a_car_info.series_cn_name;
+        				
+        				car_item_html =  "<div class='carchat_radio_item'>" +
+	        							  "<div class='title0'>" + desc + "</div>" +
+	        							  "<input type='hidden' id='car_" + car_id + "' value='" + car_mark2 + "'/>" +
+	    						 		  "<input type='radio'  name='cars' value=" + car_id + " onclick='doSelectOneCar(this)'/>"
+	    								  
+	    								  "</div>";
+        				
+        				car_radio_list.innerHTML += car_item_html;
+        			}
+        			
+        			car_radio_list.innerHTML += "</form>";
+        		}
+        	
+        	}
+        	else{
+        		div_prompt.innerText = "网络异常，请稍后重新搜索。";
+        	}
+        	
+        });
+		
+	}
+	
+	function doSelectOneCar(obj){
+		var selected_car_id = obj.value;
+		var selected_car_mark = $api.byId("car_" + selected_car_id).value;
+		
+		_selected_car_info = {'car_id': selected_car_id, 'car_mark':selected_car_mark}; // 当前选中的车牌号和ID
+	}
+	
+	function save(){
+		
+		if(_selected_car_info == null){api.toast({msg:'请选择一辆车',location:'middle'}); return;}
+		
+		/*
+		api.alert({
+			msg:JSON.stringify(_selected_car_info)
+        },function(ret,err){
+        	//coding...
+        });
+		*/
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        
+        var car_id = _selected_car_info.car_id;
+		var car_mark = _selected_car_info.car_mark;
+		
+        // 当前登陆用户的信息
+        user_info_json = $api.getStorage('current_user_info');
+        var request_comment = "请求关注车辆：" + car_mark;//"我是" + user_info_json.nicename; // 请求留言
+		
+		
+		
+		var data = {values:{"user_id":uId, "car_id":car_id, 'request_comment':request_comment}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_attent_request',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        
+        	api.hideProgress();// 关闭进度显示
+        	
+        	if(ret){
+        		var result = ret[0]; // 返回的代码
+        		
+        		if(result == 0){ // 当前用户与该车辆已经存在关联
+        			
+        			div_prompt.innerText = '车辆 【' + car_mark + '】 已关联。';
+        			
+        		}
+        		else if(result > 0){
+        		
+        			var btn_ok = $api.byId('btn_ok');
+        			
+        			//var div_input = $api.byId('div_input');
+        			
+        			btn_ok.innerText = "关闭";
+        			btn_ok.onclick = goBack;
+        			
+        			div_prompt.innerText = "请求已发送，请等待车主验证";
+
+        		}
+        	}
+        	else{
+        		div_prompt.innerText = "网络出现异常，请稍后重试";
+        	}
+        });
+	}
+	
+	
+	
+	
+	
+	
+</script>
+</html>

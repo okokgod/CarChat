@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		/*
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        */
+       
+        api.ajax({
+	        "url": _server_ip + '/carchat/auto_brand',
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        		//test.innerText = JSON.stringify(ret);
+        		var brand_id = "";
+        		var brand_name = "";
+				var brand_cnname = "";
+				var brand_logo_url = "";
+				var brand_info;
+				
+				var brand_item_html;
+				
+				document.body.innerHTML = "<form>";
+        		
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			brand_info = ret[i];
+        			brand_id = brand_info.id;
+        			brand_name = brand_info.name;
+					brand_cnname = brand_info.cnname;
+					brand_logo_url = brand_info.logourl;
+					
+					/*
+					if(i == 0){
+	        			brand_item_html = "<tr>" +
+	        							  "<td><img src='" + brand_logo_url + "' /></td>" +
+	        							  "<td>" + brand_cnname + "</td>" +
+	    						 		  "<td><input type='radio' checked='checked' name='brands' value='" + brand_name + "'/></td>"
+	    								  
+	    								  "</tr>"
+	    			}
+    				else{
+    					brand_item_html = "<tr>" +
+	        							  "<td><img src='" + brand_logo_url + "' /></td>" +
+	        							  "<td>" + brand_cnname + "</td>" +
+	    						 		  "<td><input type='radio' name='brands' value='" + brand_name + "'/></td>"
+	    								  
+	    								  "</tr>" checked='checked'
+        			*/
+        			
+        			
+	        		brand_item_html = "<div class='carchat_radio_item'>" +
+	        							  "<img src='" + brand_logo_url + "' />" +
+	        							  "<div class='title1'>" + brand_cnname + "</div>" +
+	        							  "<div class='title2'>" + brand_name + "</div>" +
+	        							  "<input type='hidden' id='brand_" + brand_id + "' value='" + brand_cnname + "'/>" +
+	    						 		  "<input type='radio'  name='brands' value='" + brand_id + "' onclick='doSelectOneBrand(this)'/>"
+	    								  
+	    								  "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += brand_item_html;
+        		}
+        		
+        		document.body.innerHTML += "</form>";
+        		
+        		// 关闭进度提示
+        		//api.hideProgress();
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+	var brand_info = null;
+	
+	function doSelectOneBrand(e){
+		// 选中一个条码时，保存选中的品牌
+		
+		/*
+		api.toast({
+	        msg:e.value + "  " + $api.byId(e.value).value
+        });
+        */
+       
+        var brand_id = e.value; 
+        var brand_cnname = $api.byId("brand_" + brand_id).value;
+        brand_info = {"id": brand_id, "cnname": brand_cnname};
+        
+        
+	}
+	
+	function doSelectBrand(){
+		// 调用 car_info_item setCarBrandName()
+		/*
+		api.toast({
+	        msg:JSON.stringify(brand_info)
+        });
+        */
+       
+		if(brand_info != null){
+			api.execScript({
+				name:'addcar',
+	        	frameName:'car_info_item',
+		        script: 'setCarBrandName(' + JSON.stringify(brand_info) + ');'
+	        });
+        }
+        
+        api.closeWin({});
+	}
+
+</script>
+</html>

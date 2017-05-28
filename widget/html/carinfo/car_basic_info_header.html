@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="goback()"><img src="../../image/back.png"></div>
+					
+					<span id="title">车辆基本信息</span>
+				</div>
+				
+		<div id="car_basic_info_list" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+
+	apiready = function(){
+		
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title;
+		var tool_frame_name = tool_info.frame_name;
+		var tool_frame_url = tool_info.frame_url;
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+		
+		// 根据用户与车辆的所属关系，是否显示“编辑”按钮
+		var header_div = $api.byId("toptoolbar");
+		if(relation_type == 1) {
+			// <div class="right" onclick="popupMenu()"><img src="../../image/more.png"></div>
+			header_div.innerHTML += "<div class='right' onclick='edit()'>编辑</div>"
+		}
+		
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("car_basic_info_list").offsetHeight
+	        },
+	        bounces:false
+        });
+	};
+	
+	function goback(){
+		// 关闭当前窗口
+		api.closeWin({
+        });
+	}
+	
+	function edit(){
+	
+	}
+
+</script>
+</html>

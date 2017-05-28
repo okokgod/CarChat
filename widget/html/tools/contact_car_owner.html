@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.divider {height: 15px;}
+    	
+		input::-webkit-input-placeholder {color: #aaa;}
+		
+    </style>
+</head>
+<body>
+	<div class="flex-con">
+		<div class="carchat_input_item">
+			<input type="hidden" id="province_name_index" value="0"/>
+			<div class="carmark_border"></div>
+			<div class="carchat_mark_provice_name" id="mark_provice_name" onclick="openProvinceNameSelector()">京</div>
+			<input class="carchat_mark_input" type="text" maxlength="6" id="carmark" placeholder="车牌号  [必填]"/>
+			<div class="search_car_phone_btn" onclick="searchCars()">搜索</div>
+		</div>
+			
+		<div class="divider"></div>
+		<div id="search_result"></div>
+		
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+    //var _province_info = null; // 省份名称及简称数组
+    
+	apiready = function(){
+		
+	};
+	
+	function openProvinceNameSelector(){
+		// 打开省份的选择器，先加载省份及简称
+		if(_province_info == null) {
+			
+			// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+			
+			api.ajax({
+		        "url": _server_ip + '/carchat/province_names',
+		        "method": "GET",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		}
+	        },function(ret,err){
+	        	api.hideProgress();
+	        
+	        	if(ret){ // 成功
+	        		        	
+	        		_province_info = ret; // [{id, name, abbr, code}, ....]
+	        		
+	        		// 显示选择器
+	        		selectProvinceName();
+	        	}
+	        });
+        }
+        else{
+        	// 显示选择器
+        	selectProvinceName();
+        }
+	}
+	
+	function selectProvinceName(){
+		// 选择省的简称
+		
+		if(_province_info == null) return;
+		
+		var items = new Array();
+		
+		var i, length;
+		var a_province;
+		var province_name;
+		var province_abbr;
+		var province_id;
+		length = _province_info.length;
+		for(i = 0; i < length; i++){
+			a_province = _province_info[i];
+			province_name = a_province.name;
+			province_abbr = a_province.abbr;
+			
+			items[i] = {text: province_name + " - " + province_abbr, status: 'normal', index:i};
+		}
+		
+		/*
+		var items = [{text: '京', status: 'normal', index:0}, 
+	                 {text: '沪', status: 'normal', index:1},
+	                 {text: '津', status: 'normal', index:2},
+	                 {text: '俞', status: 'normal', index:3},
+	                 {text: '苏', status: 'normal', index:4},
+	                 {text: '浙', status: 'normal', index:4},
+	                 {text: '鲁', status: 'normal', index:4},
+	                 {text: '赣', status: 'normal', index:4},
+	                 {text: '闽', status: 'normal', index:4}
+	     			];
+	     */
+	    			
+	     var label_div_id = 'mark_provice_name';
+	     var index_input_id = 'province_name_index';
+	     var title = '选择省份';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+	
+	function selectAreaCode(){
+		// 选择省的简称
+		var items = [{text: 'A', status: 'normal', index:0}, 
+	                 {text: 'B', status: 'normal', index:1},
+	                 {text: 'C', status: 'normal', index:2},
+	                 {text: 'D', status: 'normal', index:3},
+	                 {text: 'E', status: 'normal', index:4},
+	                 {text: 'F', status: 'normal', index:4},
+	                 {text: 'G', status: 'normal', index:4},
+	                 {text: 'H', status: 'normal', index:4},
+	                 {text: 'J', status: 'normal', index:4},
+	                 {text: 'K', status: 'normal', index:4},
+	                 {text: 'L', status: 'normal', index:4},
+	                 {text: 'M', status: 'normal', index:4},
+	                 {text: 'N', status: 'normal', index:4},
+	                 {text: 'P', status: 'normal', index:4},
+	                 {text: 'Q', status: 'normal', index:4},
+	                 {text: 'R', status: 'normal', index:4}
+	     			];
+	     var label_div_id = 'mark_area_code';
+	     var index_input_id = 'area_code_index';
+	     
+	     var title = '选择地区代码';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+	
+	function selectOption(title, items, label_div_id, index_input_id){
+		// 
+		
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: title,
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(200,200,200)',
+	             color: '#404040',
+	             size: 15,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(0,0,150)',
+	             bgHighlight: 'rgb(0,0,150)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: items
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight" && ret.items.length == 1){
+		     		var label_div = $api.byId(label_div_id);
+		     		var index_input = $api.byId(index_input_id);
+		     		
+		     		// 单选，只回传一个Item
+		     		var province_abbr = _province_info[ret.items[0].index].abbr;
+		     		
+		     		label_div.innerText = province_abbr; 
+		     		index_input.value = ret.items[0].index;
+		     		
+		     		UIMultiSelector.close();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.close();
+		     	}
+		     
+		     } else {
+		         
+		     }
+		 });
+	}
+	
+	function searchCars(){
+		// 根据输入的车牌号，搜索车辆
+		
+		//var province_index = $api.byId('province_name_index').value;
+		var province_abbr = $api.byId('mark_provice_name').innerText;
+		var car_mark = $api.byId("carmark").value;
+		
+		if(car_mark) car_mark = $api.trim(car_mark);
+		if(car_mark == "" || car_mark.length != 6){search_result.innerText = "<center>请输入正确的车牌号。</center>"; return;}
+		// 车牌号的第一字符必须为字母
+		var first_char = car_mark.charAt(0);
+		var reg= /^[A-Za-z]+$/;
+		if(!reg.test(first_char)){search_result.innerText = "<center>车牌号第一位必须为字母。<center>"; return;}
+		
+		// 转换为大写 
+		car_mark = province_abbr + car_mark.toUpperCase();
+		
+		search_result.innerText = ""; // 清空提示
+		
+		/*
+		api.alert({
+			msg:car_mark
+        },function(ret,err){
+        	//coding...
+        });
+        */
+       
+        //return;
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+		
+		
+		var data = {values:{"car_mark":car_mark}};
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/cars_by_mark',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	api.hideProgress();// 关闭进度显示
+        	
+        	if(ret){
+        		var count = ret.length;
+        		if(count == 0){ // 没有找到车辆
+        			search_result.innerHTML = "没有找到车辆   <span style='color:red'>【" + car_mark + "】</span>。";
+        		}
+        		else if(count > 0){ // 找到车辆，可能有多辆
+        		
+        			var a_car_info;
+        			var car_id;
+        			var phone;
+        			var item_html = "";
+        			for(var i = 0; i < count; i++){
+        				
+        				a_car_info = ret[i];
+        				car_id = ret[i].car_id;
+        				car_mark = ret[i].car_mark;
+        				phone = a_car_info.phone;
+        				if(phone == null) phone = "*";
+        				
+        				item_html = "<div class='search_car_phone_item'>" + 
+        				            "<div class='phone'>联系电话：" + phone + "</div>" + 
+        				            "<div class='call_btn' onclick=\"doCall('" + phone + "')\">拨打</div>" + 
+        				            "<div class='sms_btn' onclick=\"doSMS('" + phone + "')\">短信</div>" + 
+        				            "<div class='send_message_label'>或发送消息：</div>" + 
+        				            "<div class='message_editor_container'>" +
+        				           		"<input class='message_editor' id='message_" + car_id + "' placeholder='请输入消息内容'/>" + 
+        				            
+        				            	"<div class='send_message_btn' onclick=\"sendMessageToOwner(" + car_id + ", '" + car_mark + "')\">发送</div>" + 
+        				            "</div>" +
+        				            "</div>";
+        				
+        				//search_result.innerHTML += "联系电话: " + phone + "</br>";
+        				search_result.innerHTML += item_html;
+        			}
+        			
+        		}
+        	
+        	}
+        	else{
+        		search_result.innerText = "网络异常，请稍后重新搜索。";
+        	}
+        	
+        });
+		
+	}
+	
+	function doCall(phone){
+		// 拨打电话
+		if(phone != "*"){
+			api.call({
+		        number:phone
+	        });
+        }
+	}
+	
+	function doSMS(phone){
+		// 发送短信
+		if(phone == "*") return;
+		
+		var nums = new Array();
+		nums[0] = phone;
+		
+		api.sms({
+	        numbers:nums,
+	        text:'你好'
+        },function(ret,err){
+        	//coding...
+        });
+	}
+	
+	function sendMessageToOwner(car_id, car_mark){
+		// 给车主发送应用内消息
+		
+		var msg = $api.byId('message_' + car_id).value;
+		if(msg) msg = $api.trim(msg); // 去掉空格
+		if(msg == "") return;
+		
+		var user_name = "";
+		var user_nice_name = "";
+		
+		// 获取当前登陆的用户ID及名称
+		var user_info = $api.getStorage('current_user_info');
+		if(user_info != null){
+			user_name = user_info.username;
+			user_nice_name = user_info.nicename;
+		}
+		var data = {values:{"from_user_name": user_name, 
+		                    "from_user_nice_name":user_nice_name, 
+		                    "to_car_id":car_id, 
+		                    "to_car_mark":car_mark,
+		                    "message":msg}};
+		
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+        
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_owner_message',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	api.hideProgress();// 关闭进度显示
+        	
+        	if(ret){ //
+        		api.toast({msg:'消息发送成功。',location:'middle'});
+        	}
+        	else{
+        		api.toast({msg:'消息发送失败。',location:'middle'});
+        		/*
+        		api.alert({
+        			 msg:JSON.stringify(err)
+                },function(ret,err){
+                	//coding...
+                });
+                */
+        	}
+        });
+	}
+	
+</script>
+</html>

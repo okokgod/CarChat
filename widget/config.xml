@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<widget id="A6919242691020" version="0.0.1"> 
+  <name>CarChat</name>  
+  <description/>  
+  <author email="god_ou@163.com" href="http://www.apicloud.com">大成战略</author>  
+  <content src="index.html"/>  
+  <preference name="appBackground" value="rgba(0,0,0,0)"/>  
+  <preference name="windowBackground" value="rgba(0,0,0,0)"/>  
+  <preference name="frameBackgroundColor" value="rgba(0,0,0,0)"/>  
+  <preference name="autoLaunch" value="true"/>  
+  <preference name="autoUpdate" value="true"/>  
+  <preference name="smartUpdate" value="false"/>  
+  <preference name="debug" value="true"/>  
+  <preference name="statusBarAppearance" value="false"/>  
+  <permission name="location"/>  
+  <permission name="internet"/>  
+  <access origin="*"/> 
+  <feature name="bMap">
+    <param name="android_api_key" value="WhQigocWBosxjtoL1FxsotgoQ71nSSHG" />
+    <param name="ios_api_key" value="5HTmGQoHzkA2wZh900K6LPImCYKxKGc0" />
+  </feature>
+</widget>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	
+    	input {height: 40px;font-size: 16px;color: #8E8C8C;width: 100%;outline:none; border-bottom:1px solid #ddd}
+		input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+    var existed_news_count = 0; // 打开时已有的动态消息个数
+    
+	apiready = function(){
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+		
+		
+		
+		// 先查询该车辆下的所有动态消息
+		//var data = {values:{"car_id":car_id}};
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_all_news/' + car_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        
+        
+        	if(ret){
+        		
+        		var div_add_news_item = "<div class='car_news_add_news_item'>" +
+        		                   "<input type='text' id='last_news_input' placeholder='输入新动态消息'/>" +
+        		                   "<div class='car_news_add_news_clear_btn' onclick='clearNewsInput()'>清除</div>" +
+        		                   "<div class='car_news_add_news_normal_msg_btn' onclick='selectNormalNews()'>常用</div>" +
+        		                   "<div class='car_news_add_news_ok_btn' onclick='saveLastNews()'>保存</div>" +
+        		                   "</div>";
+        		
+        		document.body.innerHTML = "";
+        		if(relation_type == 1){ // 拥有该车辆，显示增加动态消息一行
+        			document.body.innerHTML = div_add_news_item;
+        		}
+        		
+        		// 先生成列表
+        		var count = ret.length;
+        		
+        		existed_news_count = count; // 保存下已有的消息个数
+        		
+        		if(count > 0){
+        		
+        			document.body.innerHTML += "<div id='car_news_item_div'></div>";
+        		}
+        		else{
+        			document.body.innerHTML += "<div id='car_news_item_div'><center>暂无动态消息</center></div>";
+        		}
+        		
+        		var i;
+        		for(i = 0; i < count; i++){
+        		
+        			add_one_news_item(ret[i], relation_type, 1);
+        		
+        		}
+        		
+        		
+        	}
+        	else{
+        		document.body.innerHTML = "网络连接出错";
+        	}
+        });
+	};
+	
+	function add_one_news_item(car_news_record, relation_type, flag){
+		// flag 1: 打开时加载数据，逐个添加的条目
+		//      2: 保存一条消息是，添加的条目
+        
+        var id = car_news_record.id
+        var car_id = car_news_record.car_id;
+        var news = car_news_record.news;
+        var pub_time = car_news_record.pub_time;
+        
+        var news_item_html = "";
+        if(relation_type == 1){ // 拥有关系，有删除按钮
+        	news_item_html = "<div class='car_news_item' id='car_news_item_" + id + "'>" +
+        					 	"<div class='content'>" + news + "</div>" +
+        					 	"<div class='pub_time'>" + pub_time + "</div>" +
+        					 	"<div class='delete' onclick='remove_news_item(" + id + ")'>删除</div>" +
+        					 "</div>";
+        }
+        else if(relation_type == 2){ // 一般关注，无删除按钮
+        	news_item_html = "<div class='car_news_item' id='car_news_item_" + id + "'>" +
+        					 	"<div class='content'>" + news + "</div>" +
+        					 	"<div class='pub_time'>" + pub_time + "</div>" +
+        					 "</div>";
+        }
+        
+        // 消息条目列表的DIV
+        var d = $api.byId('car_news_item_div');
+        
+        
+        if(existed_news_count == 0){
+        	// 如果已有的消息条目是0，则先清空
+        	d.innerHTML = "";
+        }
+        existed_news_count++; // 消息条目数递增
+        
+        // 保证所添加的条目在前，按时间倒序
+        if(flag == 1){
+        	d.innerHTML += news_item_html;
+        }
+        else if(flag ==2){
+        	d.innerHTML = news_item_html + d.innerHTML;
+        }
+	}
+	
+	function remove_news_item(id){
+		// 删除一条车辆动态消息
+		
+		api.confirm({
+	               	title:'删除动态消息',
+	               	msg:'确定要删除动态消息吗？',
+	               	buttons:['确定','取消']
+                   },function(ret,err){
+			
+			if(ret.buttonIndex == 1){
+			
+				// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+			
+				var data = {values:{"id":id}};
+			
+				api.ajax({
+			        "url":_server_ip + '/carchat/delete_one_car_news',
+			        "method": "POST",
+		      		"cache": false,
+		      		"headers": {
+		        		"X-APICloud-AppId": appId,
+		        		"X-APICloud-AppKey": appKey
+		      		},
+		      		"data": data
+		        },function(ret,err){
+		        	        
+		        	api.hideProgress();
+		        	        
+		        	if(ret){
+		        		// ret[0]: true
+		        		api.toast({msg:'删除成功。',location:'middle'});
+		        		
+		        		var d = $api.byId('car_news_item_div');
+		        		var c = $api.byId('car_news_item_' + id);
+		        		d.removeChild(c);
+		        		
+		        		existed_news_count--; // 消息条目数递减
+		        		if(existed_news_count <= 0){
+		        			//var d = $api.byId('car_news_item_div');
+		        			d.innerHTML = "<center>暂无动态消息</center>";
+		        		}
+		        	}
+		        	else{
+		        		api.toast({msg:'删除失败。',location:'middle'});
+		        	}
+		        	
+		        });
+	        }
+	      });
+	}
+	
+	function remove_all_news(){
+		// 删除一车辆的所有动态消息
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var car_mark = car_info_json.car_mark;
+		
+		api.confirm({
+	               	title:'删除动态消息',
+	               	msg:'确定要删除车辆【' + car_mark + '】的所有动态消息吗？',
+	               	buttons:['确定','取消']
+                   },function(ret,err){
+			
+			if(ret.buttonIndex == 1){
+			
+				// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+			
+				var data = {values:{"car_id":car_id}};
+			
+				api.ajax({
+			        "url":_server_ip + '/carchat/delete_all_car_news',
+			        "method": "POST",
+		      		"cache": false,
+		      		"headers": {
+		        		"X-APICloud-AppId": appId,
+		        		"X-APICloud-AppKey": appKey
+		      		},
+		      		"data": data
+		        },function(ret,err){
+		        	        
+		        	api.hideProgress();
+		        	        
+		        	if(ret){
+		        		// ret[0]: true
+		        		api.toast({msg:'删除成功。',location:'middle'});
+		        		
+		        		var d = $api.byId('car_news_item_div');
+		        		
+		        		d.innerHTML = "<center>暂无动态消息</center>";
+		        		
+		        		existed_news_count = 0;
+		        	}
+		        	else{
+		        		api.toast({msg:'删除失败。',location:'middle'});
+		        	}
+		        	
+		        });
+	        }
+	      });
+	}
+	
+	function saveLastNews(){
+		// 保存输入的最新动态消息
+		var last_news_text = $api.byId('last_news_input').value;
+		if(last_news_text) last_news_text = $api.trimAll(last_news_text);
+		if(last_news_text == ""){api.toast({msg:'请输入动态消息内容',location:'middle'}); return;}
+		
+		
+		// 车辆ID
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+		
+		var data = {values:{"car_id":car_id, "news":last_news_text}};
+		
+			// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+		
+        	api.ajax({
+		        "url":_server_ip + '/carchat/car_news',
+		        "method": "POST",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		},
+	      		"data": data
+	        },function(ret,err){
+	        
+	        	api.hideProgress();
+	        
+	        	if(ret){
+	        		// ret[0]: [id, car_id, news, pub_time]
+	        		api.toast({msg:'保存成功。',location:'middle'});
+	        		add_one_news_item(ret[0],relation_type, 2);
+	        	}
+	        	else{
+	        		api.toast({msg:'保存失败。',location:'middle'});
+	        	}
+	        	
+	        });
+		
+	}
+	
+	function clearNewsInput(){
+		// 情况动态消息输入框
+		var input_editor = $api.byId('last_news_input');
+		input_editor.value = '';
+	}
+	
+	function selectNormalNews(){
+		// 打开常见的消息
+		
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: '常用消息',
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(0,0,200)',
+	             color: '#fff',
+	             size: 16,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#fff',
+	             size: 14
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#fff',
+	             size: 14
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(180,180,180)',
+	             bgHighlight: 'rgb(180,180,180)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: [{text: '又堵车了！', status: 'selected'}, 
+	             {text: '被追尾了！', status: 'normal'},
+	             {text: '追尾了！', status: 'normal'},
+	             {text: '刮擦了！', status: 'normal'},
+	             {text: '自驾游路上', status: 'normal'},
+	             {text: '回家路上', status: 'normal'}
+	     		]
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight"){
+		     		var last_news_text = $api.byId('last_news_input');
+		     		last_news_text.value = ret.items[0].text;
+		     		
+		     		UIMultiSelector.hide();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.hide();
+		     	}
+		     
+		         //alert(JSON.stringify(ret));
+		     } else {
+		         //alert(JSON.stringify(err));
+		     }
+		 });
+	}
+	
+	
+	function onClickAccept(obj, request_id, user_id, car_id){
+		// 点击接受按钮，弹出确认对话框
+		
+		
+		api.confirm({
+			title: "接受车友请求",
+			msg: "请选择给予的权限",
+			buttons:["拥有", "关注", "取消"]
+        },function(ret,err){
+        	//coding...
+        	var relation_type = 2;
+        	var ver_comment = "";
+        	if(ret.buttonIndex == 1){
+        		relation_type = 1;
+        		ver_comment = "拥有";
+        	}
+        	else if(ret.buttonIndex == 2){
+        		relation_type = 2;
+        		ver_comment = "关注";
+        	}
+        	else{
+        		return; // 取消，退出
+        	}
+        	
+        	// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+	        
+	        
+        	var data = {values:{"request_id":request_id, "user_id":user_id, "car_id":car_id, "relation_type":relation_type}};
+        	api.ajax({
+		        "url":_server_ip + '/carchat/accept_attention_request',
+		        "method": "POST",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		},
+	      		"data": data
+	        },function(ret,err){
+	        	
+	        	// 关闭进度提示
+	        	api.hideProgress();
+	        	
+	        	if(ret){
+	        		if(ret[0]){
+	        			var req_item = $api.byId('request_item_' + request_id); // 请求条目的父Div
+	        			req_item.removeChild(obj);
+	        			
+	        			var div_n = document.createElement('div');
+	        			div_n.className = 'verify_result';
+	        			div_n.innerText = ver_comment;
+	        			req_item.appendChild(div_n);
+	        		}
+	        	}
+	        	
+	        	/*
+	        	api.alert({
+	        		msg:ret
+                },function(ret,err){
+                	//coding...
+                });
+                */
+	        });
+        });
+		
+	}
+	
+	function onClickRemove(obj, request_id, user_id, car_id){
+		// 点击删除关注
+		
+		api.confirm({
+			title: "删除车友关注",
+			msg: "确定要删除车友关注？",
+			buttons:["确定", "取消"]
+        },function(ret,err){
+        	if(ret.buttonIndex == 1){ // 确定
+        		// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+		        
+		        var data = {values:{"request_id":request_id, "user_id":user_id, "car_id":car_id}};
+	        	api.ajax({
+			        "url":_server_ip + '/carchat/delete_attention',
+			        "method": "POST",
+		      		"cache": false,
+		      		"headers": {
+		        		"X-APICloud-AppId": appId,
+		        		"X-APICloud-AppKey": appKey
+		      		},
+		      		"data": data
+		        },function(ret,err){
+		        	
+		        	// 关闭进度提示
+		        	api.hideProgress();
+		        	
+		        	if(ret){
+		        		if(ret[0]){
+		        			var req_item = $api.byId('request_item_' + request_id); // 请求条目的父Div
+		        			
+		        			document.body.removeChild(req_item);
+		        		}
+		        	}
+		        });
+        	
+        	}
+        });
+	}
+</script>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	.divider {height: 15px;}
+    	
+		input::-webkit-input-placeholder {color: #aaa;}
+		
+    </style>
+</head>
+<body>
+	<div class="flex-con">
+		<div class="carchat_illegal_query_item">
+			<input type="hidden" id="province_name_index" value="0"/>
+			<input type="hidden" id="province_abbr" value=""/>
+			<input type="hidden" id="input_carorg_name" value="beijing"/>
+			<input type="hidden" id="input_carorg_index" value="0"/>
+			<input type="hidden" id="hidden_needed_frame_no_bit_count" value="0"/>
+			<input type="hidden" id="hidden_needed_engine_no_bit_count" value="100"/>
+			<input type="hidden" id="hidden_car_mark_type_index" value="0"/>
+			<input type="hidden" id="hidden_selected_mark_type_id" value="02"/>
+			
+			<div class='carmark_border'></div>
+			<div class="province_name" id="mark_provice_name" onclick="openProvinceNameSelector()">京</div>
+			<input class="mark_input" type="text" maxlength="6" id="carmark" placeholder="车牌号  [必填]"/>
+			<div class="take_place_province_label">违法地所在省份：</div>
+			<div class="take_place_province" id="take_place_province" onclick="onClickSelectTablePlaceProvince()">北京 - 京</div>
+			<div class="car_mark_type_label">车牌类型：</div>
+			<div class="car_mark_type" id="car_mark_type" onclick="selectCarMarkType()">小型汽车</div>
+			<input class="frame_no_input" type="text" id="car_frame_no" placeholder="" readonly="readonly" style="background-color: #dcdcdc"/>
+			<input class="engine_no_input" type="text" id="car_engine_no" placeholder=""  readonly="readonly" style="background-color: #dcdcdc"/>
+			<div class="query_btn" onclick="doIllegalQuery()">查询</div>
+		</div>
+			
+		<div class="divider"></div>
+		<div id="search_result" style="text-align: center"></div>
+			
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+    //var _province_info = null; // 省份名称及简称数组
+    
+	apiready = function(){
+		//openProvinceNameSelector();
+		set_frame_engine_no_input_state();
+	};
+	
+	function openProvinceNameSelector(){
+		// 打开省份的选择器，先加载支持违章查询的省份信息 
+		if(_illegal_query_support_province_info == null) {
+			
+			// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+			
+			api.ajax({
+		        "url": _server_ip + '/carchat/illegal_query_support_traffic_agency',
+		        "method": "GET",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		}
+	        },function(ret,err){
+	        	api.hideProgress();
+	        
+	        	if(ret){ // 成功
+	        		        	
+	        		_illegal_query_support_province_info = ret; // [{省份名称， 省份简称，交通局名称, 需要输入的车架号位数， 需要输入的发动机号位数}, ]
+	        		
+	        		// 显示选择器
+	        		selectProvinceName();
+	        	}
+	        });
+        }
+        else{
+        	// 显示选择器
+        	selectProvinceName();
+        }
+	}
+	
+	function selectProvinceName(){
+		// 选择省的简称
+		
+		if(_illegal_query_support_province_info == null) return;
+		
+		var items = new Array();
+		
+		var i, length;
+		var a_province;
+		var province_name;
+		//var province_abbr;
+		//var province_id;
+		length = _illegal_query_support_province_info.length;
+		for(i = 0; i < length; i++){
+			a_province = _illegal_query_support_province_info[i];
+			province_name = a_province.province; // 省份名称
+			province_abbr = a_province.lsprefix; // 省份简称
+			
+			items[i] = {text: province_name + " - " + province_abbr, status: 'normal', index:i};
+		}
+			
+	     var label_div_id = 'mark_provice_name';
+	     var index_input_id = 'province_name_index';
+	     var title = '选择省份';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectOption(title, items, label_div_id, index_input_id);
+	}
+	
+	function selectOption(title, items, label_div_id, index_input_id){
+		// 选择发动机容量
+		
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: title,
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(200,200,200)',
+	             color: '#404040',
+	             size: 15,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(0,0,150)',
+	             bgHighlight: 'rgb(0,0,150)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: items
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight" && ret.items.length == 1){
+		     		var label_div = $api.byId(label_div_id);
+		     		var index_input = $api.byId(index_input_id);
+		     		
+		     		var selected_index = ret.items[0].index;
+		     		
+		     		// 单选，只回传一个Item
+		     		// 获取选中的省简称、交管局名称，所需填入的车架号位数和发动机号位数
+		     		// 省份简称
+		     		var province_name = _illegal_query_support_province_info[selected_index].province;
+		     		var province_abbr = _illegal_query_support_province_info[selected_index].lsprefix;
+		     		// 所需填入的车架号位数和发动机号位数
+		     		var needed_frame_no_bit_count = _illegal_query_support_province_info[selected_index].frameno;
+		     		var needed_engine_no_bit_count = _illegal_query_support_province_info[selected_index].engineno;
+		     		var carorg_name = _illegal_query_support_province_info[selected_index].carorg;
+		     		
+		     		label_div.innerText = province_abbr;  // 显示省份简称
+		     		index_input.value = ret.items[0].index; // 记录下当前的index
+		     		
+		     		// 保存车架号及发动机号的输入
+		     		//set_frame_engine_no_input_state(needed_frame_no_bit_count, needed_engine_no_bit_count);
+		     		$api.byId('hidden_needed_frame_no_bit_count').value = needed_frame_no_bit_count;
+		     		$api.byId('hidden_needed_engine_no_bit_count').value = needed_engine_no_bit_count;
+		     		set_frame_engine_no_input_state();
+		     		
+		     		// 设置默认违法发生地，为车牌所在地
+		     		set_illegal_take_place_province(selected_index, province_name + " - " + province_abbr, carorg_name);
+		     		
+		     		UIMultiSelector.close();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.close();
+		     	}
+		     
+		     } else {
+		         
+		     }
+		 });
+	}
+	
+	function set_frame_engine_no_input_state(){
+		// 设定需要输入的车架号及发动机号
+		
+		var needed_frame_no_bit_count = $api.byId('hidden_needed_frame_no_bit_count').value;
+		var needed_engine_no_bit_count = $api.byId('hidden_needed_engine_no_bit_count').value;
+		
+		input_car_frame_no = $api.byId('car_frame_no');
+		input_car_engine_no = $api.byId('car_engine_no');
+		//readonly="readonly" style="background-color: #dcdcdc"
+		input_car_frame_no.readonly = 'readonly';
+		input_car_frame_no.style = 'background-color: #dcdcdc';
+		input_car_frame_no.placeholder = '';
+		     		
+		input_car_engine_no.readonly = 'readonly';
+		input_car_engine_no.style = 'background-color: #dcdcdc';
+		input_car_engine_no.placeholder = '';
+		  
+		 // 车架号的输入
+		if(needed_frame_no_bit_count == 100){
+		     input_car_frame_no.readOnly = '';
+		     input_car_frame_no.style = 'background-color: #ffffff';
+		     input_car_frame_no.placeholder = '请输入完整的车架号 [必填]';
+		     input_car_frame_no.maxLength = "20";
+		}
+		else if(needed_frame_no_bit_count == 8){
+		     input_car_frame_no.readOnly = '';
+		     input_car_frame_no.style = 'background-color: #ffffff';
+		     input_car_frame_no.placeholder = '请输入车架号的后八位 [必填]';
+		     input_car_frame_no.maxLength = "8";
+		}
+		else if(needed_frame_no_bit_count == 6){
+		     input_car_frame_no.readOnly = '';
+		     input_car_frame_no.style = 'background-color: #ffffff';
+		     input_car_frame_no.placeholder = '请输入车架号的后六位 [必填]';
+		     input_car_frame_no.maxLength = "6";
+		}
+		else if(needed_frame_no_bit_count == 4){
+		     input_car_frame_no.readOnly = '';
+		     input_car_frame_no.style = 'background-color: #ffffff';
+		     input_car_frame_no.placeholder = '请输入车架号的后四位 [必填]';
+		     input_car_frame_no.maxLength = "4";
+		     
+		}
+		else if(needed_frame_no_bit_count == 0){
+		     input_car_frame_no.readOnly = 'readonly';
+		     input_car_frame_no.style = 'background-color: #dcdcdc';
+		     input_car_frame_no.placeholder = '';
+		     input_car_frame_no.maxLength = "0";
+		}
+		
+		
+		// 发动机号的输入
+		if(needed_engine_no_bit_count == 100){
+		     input_car_engine_no.readOnly = '';
+		     input_car_engine_no.style = 'background-color: #ffffff';
+		     input_car_engine_no.placeholder = '请输入完整的发动机号 [必填]';
+		     input_car_engine_no.maxLength = "20";
+		}
+		else if(needed_engine_no_bit_count == 8){
+		     input_car_engine_no.readOnly = '';
+		     input_car_engine_no.style = 'background-color: #ffffff';
+		     input_car_engine_no.placeholder = '请输入发动机号的后八位 [必填]';
+		     input_car_engine_no.maxLength = "8";
+		}
+		else if(needed_engine_no_bit_count == 6){
+		     input_car_engine_no.readOnly = '';
+		     input_car_engine_no.style = 'background-color: #ffffff';
+		     input_car_engine_no.placeholder = '请输入发动机号的后六位 [必填]';
+		     input_car_engine_no.maxLength = "6";
+		}
+		else if(needed_engine_no_bit_count == 4){
+		     input_car_engine_no.readOnly = '';
+		     input_car_engine_no.style = 'background-color: #ffffff';
+		     input_car_engine_no.placeholder = '请输入发动机号的后四位 [必填]';
+		     input_car_engine_no.maxLength = "4";
+		}
+		else if(needed_engine_no_bit_count == 0){
+		     input_car_engine_no.readOnly = 'readonly';
+		     input_car_engine_no.style = 'background-color: #dcdcdc';
+		     input_car_engine_no.placeholder = '';
+		     input_car_engine_no.maxLength = "0";
+		}
+		
+	}
+	
+	function set_illegal_take_place_province(selected_index, province_abbr, carorg_name){
+		// 设置违法地所在省份
+		
+		var input_carorg = $api.byId('input_carorg_name');
+		input_carorg.value = carorg_name;
+				
+		var input_index = $api.byId('input_carorg_index');
+		input_index.value = selected_index;
+		
+		var div_table_place = $api.byId('take_place_province');
+		div_table_place.innerText = province_abbr;
+	}
+	
+	function onClickSelectTablePlaceProvince(){
+		// 打开省份的选择器，先加载支持违章查询的省份信息 
+		if(_illegal_query_support_province_info == null) {
+			
+			// 显示进度
+			api.showProgress({
+				style:'default',
+				animationType:'fade',
+				title:'',
+				text:'',
+				modal:true
+	        });
+			
+			api.ajax({
+		        "url": _server_ip + '/carchat/illegal_query_support_traffic_agency',
+		        "method": "GET",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		}
+	        },function(ret,err){
+	        	api.hideProgress();
+	        
+	        	if(ret){ // 成功
+	        		        	
+	        		_illegal_query_support_province_info = ret; // [{省份名称， 省份简称，交通局名称, 需要输入的车架号位数， 需要输入的发动机号位数}, ]
+	        		
+	        		// 显示选择器
+	        		selectTakeplaceProvince();
+	        	}
+	        });
+        }
+        else{
+        	// 显示选择器
+        	selectTakeplaceProvince();
+        }
+	}
+	
+	function selectTakeplaceProvince(){
+		// 选择违法地所在省份
+		
+		if(_illegal_query_support_province_info == null) return;
+		
+		var items = new Array();
+		
+		var i, length;
+		var a_province;
+		var province_name;
+		//var province_abbr;
+		//var province_id;
+		length = _illegal_query_support_province_info.length;
+		for(i = 0; i < length; i++){
+			a_province = _illegal_query_support_province_info[i];
+			province_name = a_province.province; // 省份名称
+			province_abbr = a_province.lsprefix; // 省份简称
+			
+			items[i] = {text: province_name + " - " + province_abbr, status: 'normal', index:i};
+		}
+			
+	     var label_div_id = 'take_place_province';
+	     var index_input_id = 'input_carorg_index';
+	     var title = '选择省份';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectTakePlaceOption(title, items, label_div_id, index_input_id);
+	}
+	
+	
+	function selectTakePlaceOption(title, items, label_div_id, index_input_id){
+		// 选择违法地所在省份
+		
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: title,
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(200,200,200)',
+	             color: '#404040',
+	             size: 15,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(0,0,150)',
+	             bgHighlight: 'rgb(0,0,150)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: items
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight" && ret.items.length == 1){
+		     		var label_div = $api.byId(label_div_id);
+		     		var index_input = $api.byId(index_input_id);
+		     		
+		     		var selected_index = ret.items[0].index;
+		     		
+		     		// 单选，只回传一个Item
+		     		// 获取选中的省简称、交管局名称，所需填入的车架号位数和发动机号位数
+		     		// 省份简称
+		     		var province_name = _illegal_query_support_province_info[selected_index].province;
+		     		var province_abbr = _illegal_query_support_province_info[selected_index].lsprefix;
+		     		// 所需填入的车架号位数和发动机号位数
+		     		var needed_frame_no_bit_count = _illegal_query_support_province_info[selected_index].frameno;
+		     		var needed_engine_no_bit_count = _illegal_query_support_province_info[selected_index].engineno;
+		     		var carorg_name = _illegal_query_support_province_info[selected_index].carorg;
+		     		
+		     		label_div.innerText = province_name + " - " + province_abbr;  // 显示省份简称
+		     		index_input.value = ret.items[0].index; // 记录下当前的index
+		     		
+		     		// 记录下交管局代号
+		     		var input_carorg = $api.byId('input_carorg_name');
+					input_carorg.value = carorg_name;
+					
+					// 设置车架号及发动机号的输入框状态
+		     		//set_frame_engine_no_input_state(needed_frame_no_bit_count, needed_engine_no_bit_count);
+		     		$api.byId('hidden_needed_frame_no_bit_count').value = needed_frame_no_bit_count;
+		     		$api.byId('hidden_needed_engine_no_bit_count').value = needed_engine_no_bit_count;
+		     		set_frame_engine_no_input_state();
+		     		
+		     		UIMultiSelector.close();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.close();
+		     	}
+		     
+		     } else {
+		         
+		     }
+		 });
+	}
+	
+	
+	
+	function doIllegalQuery(){
+		// 下一步，输入更多的信息
+		
+		// 先获取输入
+		var car_type = $api.byId('hidden_selected_mark_type_id').value; // 车辆类型，2 为小型车
+		var province_abbr = $api.byId('mark_provice_name').innerText;
+		var car_mark = $api.byId('carmark').value;
+		var take_place = $api.byId('input_carorg_name').value;
+				
+		if(car_mark) car_mark = $api.trim(car_mark);
+		if(car_mark == ""){
+			api.toast({
+	            msg:'请输入车牌号'
+            });
+            return;
+		}
+		car_mark = car_mark.toUpperCase();
+		
+		var input_frame_no = $api.byId('car_frame_no');
+		var input_engine_no = $api.byId('car_engine_no');
+		var frame_no = "";
+		var engine_no = "";
+		if(input_frame_no.readOnly == ''){ // 需要输入车架号
+			frame_no = $api.trim(input_frame_no.value);
+			if(frame_no == ""){
+				api.toast({
+	            	msg:'请输入车架号'
+            	});
+            	return;
+			}
+		}
+		
+		if(input_engine_no.readOnly == ''){ // 需要输入车架号
+			engine_no = $api.trim(input_engine_no.value);
+			if(engine_no == ""){
+				api.toast({
+	            	msg:'请输入发动机号'
+            	});
+            	return;
+			}
+		}
+		
+		
+		// 开始搜索
+		
+		
+		
+		var data = {values:{"carorg":take_place, 
+		                    "lsprefix":province_abbr, 
+		                    "lsnum":car_mark, 
+		                    "lstype":car_type,
+		                    "frameno":frame_no,
+		                    "engineno":engine_no}};
+				
+		// 显示进度
+		api.showProgress({
+			style:'default',
+			animationType:'fade',
+			title:'',
+			text:'',
+			modal:true
+        });
+		
+		api.ajax({
+	        "url":_server_ip + '/carchat/illegal_query',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        	api.hideProgress();// 关闭进度显示
+        	
+        	if(ret){
+        		var count = ret.length;
+        		if(count == 0){ // 没有找到车辆
+        			search_result.innerHTML = "没有查询到车辆&nbsp;<span style='color:red'>【" + province_abbr + car_mark + "】</span>&nbsp;的违章记录。";
+        		}
+        		else if(count > 0){ // 找到违章记录
+        		
+        			var time;
+        			var address;
+        			var content;
+        			var price;
+        			var score;
+        			
+        			var item_html = "";
+        			
+        			for(var i = 0; i < count; i++){
+        				
+        				time = ret[i].time;
+        				address = ret[i].address;
+        				content = ret[i].content;
+        				price = ret[i].price;
+        				score = ret[i].score;
+        			
+        				
+        				item_html = "<div class='carchat_illegal_record_item'>" + 
+	        							"<div class='time'>时间：" + time + "</div>"+
+	        							"<div class='price'>罚款：" + price + "</div>"+
+	        							"<div class='score'>扣分：" + score + "</div>"+
+	        							"<div class='address'>地点：" + address + "</div>"+
+	        							"<div class='content'>内容：" + content + "</div>"+
+        				            "</div>";
+        				
+        				search_result.innerHTML += item_html;
+        			}
+        			
+        		}
+        	
+        	}
+        	else{
+        		search_result.innerText = "网络异常，请稍后重新查询。";
+        	}
+        	
+        });
+	}
+	
+	function selectCarMarkType(){
+		// 点击选择汽车牌照类型
+		
+		var items = [{text: "小型汽车", status: 'normal', index:0},
+		             {text: "大型汽车", status: "normal", index:1},
+		             {text: "两、三轮摩托车", status: "normal", index:2},
+		             {text: "轻便摩托车", status: "normal", index:3},
+		             {text: "农用运输车", status: "normal", index:4}]
+		
+		 var label_div_id = 'car_mark_type';
+	     var index_input_id = 'hidden_car_mark_type_index';
+	     var title = '选择车牌类型';
+	     
+	     var index_input = $api.byId(index_input_id);
+	     var index = index_input.value;
+	     
+	     items[index].status = "selected";
+	     
+	     selectCarMarkTypeOption(title, items, label_div_id, index_input_id);
+	}
+	
+	function selectCarMarkTypeOption(title, items, label_div_id, index_input_id){
+	
+		var UIMultiSelector = api.require('UIMultiSelector');
+	 	UIMultiSelector.open({
+	     rect: {
+	         h: 244
+	     },
+	     text: {
+	         title: title,
+	         leftBtn: '取消',
+	         rightBtn: '确定'
+	     },
+	     max: 0,
+	     singleSelection: true,
+	     styles: {
+	         mask: 'rgba(0,0,0,0)',
+	         title: {
+	             bg: 'rgb(200,200,200)',
+	             color: '#404040',
+	             size: 15,
+	             h: 44
+	         },
+	         leftButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginL: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         rightButton: {
+	             w: 80,
+	             h: 35,
+	             marginT: 5,
+	             marginR: 8,
+	             color: '#404040',
+	             size: 15
+	         },
+	         item: {
+	             h: 35,
+	             bg: '#fff',
+	             bgActive: 'rgb(0,0,150)',
+	             bgHighlight: 'rgb(0,0,150)',
+	             color: 'rgb(22,22,22)',
+	             active: '#fff',
+	             highlight: '#fff',
+	             size: 14,
+	             lineColor: 'rgb(78,57,255)',
+	             textAlign: 'center'
+	         }
+	     },
+	     animation: true,
+	     items: items
+		 }, function(ret, err) {
+		     if (ret) {
+		     	if(ret.eventType == "clickRight" && ret.items.length == 1){
+		     		var label_div = $api.byId(label_div_id);
+		     		var index_input = $api.byId(index_input_id);
+		     		
+		     		var selected_type_name = ret.items[0].text; 
+		     		var selected_index = ret.items[0].index;
+		     		
+		     		// 单选，只回传一个Item
+		     		var car_mark_type_ids = ["02", "01", "07", "08", "13"]; // 车牌类型
+		     		// 记录下选中的车牌类型ID
+		     		$api.byId('hidden_selected_mark_type_id').value = car_mark_type_ids[selected_index];
+		     		
+		     		label_div.innerText = selected_type_name;  // 选中的车牌名称
+		     		index_input.value = ret.items[0].index; // 记录下当前的index
+		     		
+		     		
+		     		UIMultiSelector.close();
+		     	}
+		     	else if(ret.eventType == "clickLeft"){
+		     		UIMultiSelector.close();
+		     	}
+		     
+		     } else {
+		         
+		     }
+		 });
+	}
+	
+	
+</script>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+	
+		var page_info = api.pageParam;
+		
+		var city_id = page_info.city_id; // 展会的年份
+		
+        // 获取一个城市的所有限行规定
+        api.ajax({
+	        "url": _server_ip + '/carchat/traffic_limit_list/' + city_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        	
+        		var id = "";
+        		var day_type = "";
+        		var auto_type = "";
+        		var limit_date_range = "";
+        		var limit_time_range = "";
+				var limit_region = "";
+				var limit_region_map_url = "";
+				var punish = "";
+				var memo = "";
+				
+				var limit_content;
+        		
+        		var limit_content_lies;
+        		var limit_content_line_count;
+        		
+        		var item_div_height;
+        		var punish_top;
+        		var memo_top;
+				
+				var show_time_str;
+				
+				var item_html;
+				
+				document.body.innerHTML = "";
+				
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+        			
+        			id = row.id 
+        			day_type = row.day_type;
+        			limit_date_range = row.limit_date_range;
+        			limit_content = row.limit_content; // 限行规定内容
+        			
+        			limit_content = "限行规定：<br>";
+        			item_div_height = 60;
+        			
+        			if(row.limit_content != null){
+	        			limit_content_lines = row.limit_content.split('\r\n');
+	        			limit_content_line_count = limit_content_lines.length + 1;
+	        			item_div_height += limit_content_line_count * 20 + 60;
+	        			
+	        			punish_top = 60 + limit_content_line_count * 20 + 5;
+	        			memo_top = punish_top + 25;
+	        			
+	        			limit_content += row.limit_content;
+	        			
+	        			var reg = new RegExp("\r\n", "g");
+        				limit_content = limit_content.replace(reg, "<br>");
+        			}
+        			else{
+        				limit_content += "无";
+        				limit_content_line_count = 2;
+        				item_div_height += limit_content_line_count * 20 + 60;
+        				
+        				punish_top = 60 + limit_content_line_count * 20 + 5;
+	        			memo_top = punish_top + 25;
+        			}
+        			
+        			/*
+        			auto_type = row.auto_type; 
+        			limit_time_range = row.limit_time_range;
+        			limit_region = row.limit_region;
+        			*/
+        			limit_region_map_url = row.limit_region_map;
+        			punish = row.punish;
+        			memo = row.memo;
+        			        			
+        			if(memo == null) {
+        				phone = "";
+        			}
+        		
+        			item_html  = "<div class='traffic_limit_item' style=\'height:" + item_div_height + "px\'>" +
+        							"<div class='day_type'>" + day_type + "</div>" +
+        							"<div class='limit_date_range'>日期范围：" + limit_date_range + "</div>" +
+        							"<div class='limit_content'>" + limit_content + "</div>" +
+        							
+        							//"<div class='limit_time_range'>限行时段：" + limit_time_range + "</div>" +
+        							//"<div class='limit_region'>限行区域：" + limit_region + "</div>" +
+        							
+        							// top:105px; top:130px;
+        							"<div class='punish' style=\'top:" + punish_top + "px\'>处罚措施：" + punish + "</div>" +
+        							"<div class='memo' style=\'top:" + memo_top + "px\'>备注：" + memo + "</div>" +
+	        						"</div>";
+	    			
+	    			
+	    			document.body.innerHTML += item_html;
+        		}
+        		
+        		//document.body.innerHTML += "</div>";
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+</script>
+</html>

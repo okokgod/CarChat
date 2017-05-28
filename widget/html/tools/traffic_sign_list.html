@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+	
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    
+	apiready = function(){
+		
+		var page_info = api.pageParam;
+		var group_id = page_info.group_id; // 分组ID
+		
+        // 获取交通标志列表
+        api.ajax({
+	        "url": _server_ip + '/carchat/traffic_sign/' + group_id,
+	        "method": "GET",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		}
+        },function(ret,err){
+        	if(ret){ // 成功
+        	
+        		var name = ""; // 交通标志的名称
+        		var pic_url = "";  // 标志图片的URL
+        		var memo = ""; // 标志的说明
+				
+				var item_html;
+				
+				document.body.innerHTML = "";
+				
+        		var count = ret.length;
+        		for(var i = 0; i < count; i++)
+        		{
+        			var row = ret[i];
+        			
+        			
+        			name = row.name;
+        			pic_url = row.pic_url;
+        			memo = row.memo;
+        			if(memo == null) memo = "";
+        			
+        			
+        			item_html  = "<div class='traffic_sign_item'>" +
+        							"<img src='" + pic_url + "'/>" +
+        							"<div class='name'>" + name + "</div>" +
+        							"<div class='memo'>" + memo + "</div>" +
+	        					 "</div>";
+	    			
+	    			
+	    			document.body.innerHTML += item_html;
+        		}
+        		
+        		//document.body.innerHTML += "</div>";
+        		
+        	}
+        	else{
+        		document.body.innerHTML = JSON.stringify(err);
+        	}
+        });
+        
+	};
+	
+</script>
+</html>

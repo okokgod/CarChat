@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="goback()"><img src="../../image/back.png"></div>
+					<span id="title">最新动态</span>
+				</div>
+				
+		<div id="car_news_list" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+	
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title;
+		var tool_frame_name = tool_info.frame_name;
+		var tool_frame_url = tool_info.frame_url;
+	
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var relation_type = car_info_json.relation_type;
+		// 根据用户与车辆的所属关系，是否显示“”按钮
+		var header_div = $api.byId("toptoolbar");
+		if(relation_type == 1) {
+			// <div class="right" onclick="popupMenu()"><img src="../../image/more.png"></div>
+			header_div.innerHTML += "<div class='right' onclick='popupMenu()'><img src='../../image/more.png'></div>"
+		}
+	
+		
+		api.openFrame({
+	        name: tool_frame_name,
+	        url: tool_frame_url,
+	        rect: {
+		        x:0,
+		        y:$api.byId("toptoolbar").offsetHeight,
+		        w:api.winWidth,
+		        h:$api.byId("car_news_list").offsetHeight
+	        },
+	        bounces:false
+        });
+	};
+	
+	function goback(){
+		// 关闭当前窗口
+		api.closeWin({
+        });
+	}
+	
+	function popupMenu(){
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		//var car_info_json = $api.getStorage('current_car_info');
+		
+		//var relation_type = car_info_json.relation_type;
+		//if(relation_type != 1) return; // 如果不是拥有关系，则退出
+	
+		menuItems = [{title:'清空动态消息', icon:'widget://image/delete.png'}];
+		
+		var w = 150;
+        var h = 50;
+        var x = api.winWidth - 10;
+        var y = $api.byId('toptoolbar').offsetHeight + 15;
+		
+		var mnPopups = api.require('MNPopups');
+		mnPopups.open({
+		    rect: {
+		        w: w,
+		        h: h
+		    },
+		    position: {       
+		        x: x, 
+		        y: y      
+		    },
+		    styles: {
+		        mask: 'rgba(0,0,0,0)',
+		        bg: '#404040',                        
+		        cell: {                            
+		            bg:{
+		                normal: '',              
+		                highlight: ''            
+		            },                   
+		            h: 45,                         
+		            title: {                      
+		                marginL: 45,               
+		                color: '#FFFFFF',          
+		                size: 16,                 
+		            },
+		            icon: {                        
+		                marginL: 10,               
+		                w: 25,                     
+		                h: 25,                     
+		                corner: 2                  
+		            }
+		        }
+		    },
+		    datas: menuItems,
+		    animation: true,
+		    pointer: {
+	            size: 1,                     
+	            xPercent: 90,                
+	            yPercent: 0,                 
+	            orientation: 'downward'
+        	}
+		}, onClickMenuItem);
+	}
+	
+	function onClickMenuItem(ret){
+		if (ret) {
+	        // ret: {index:1, eventType:click}
+	        if(ret.eventType == 'click'){
+	               		
+	        	if(ret.index == 0){
+	        		// 页面参数
+					var tool_info = api.pageParam;
+					var tool_frame_name = tool_info.frame_name;
+	        	
+					api.execScript({
+						frameName:tool_frame_name,
+				        script: 'remove_all_news();'
+			        });
+        		}
+        	}
+        }
+	}
+
+</script>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					<div class="right" onclick="doSelect()">确定</div>
+					选择汽车品牌
+				</div>
+				
+		<div id="car_brand_list" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var uId = $api.getStorage("uid");
+    
+	//var _brand_model_string = null;
+    var _brandPicker = null;
+    //var _selected_brand_series_index = null;// 选中的汽车品牌及车系Index
+    //var _selected_model_index = null;
+    var _selected_brand_series_str = null;
+    
+    
+	apiready = function(){
+	
+		// 获取汽车品牌ID
+		
+		if(_brand_model_string == null){
+			
+			api.ajax({
+		        "url": _server_ip + '/carchat/brand_model_picker_string',
+		        "method": "GET",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		}
+	        },function(ret,err){
+	        	if(ret){
+	        		_brand_model_string = ret; // 是一个数组
+	        		openBrandModelPicker(_brand_model_string);
+	        		
+	        	}
+	        });
+        
+		}
+		else{
+			openBrandModelPicker(_brand_model_string);
+		}
+
+	};
+	
+	function openBrandModelPicker(brand_model_str){
+		
+        
+		// 全屏
+        var pickerY = $api.byId("toptoolbar").offsetHeight;
+        var pickerX = 0;
+        var pickerW = api.winWidth;
+        var pickerH = $api.byId("car_brand_list").offsetHeight;
+
+        // 传入的已经选中的Index
+		selected_brand_series_index = api.pageParam;
+		
+        if(selected_brand_series_index == null){
+        	selected_brand_series_index = [0, 0, 0];
+        }
+        
+		_brandPicker = api.require('UILinkedPicker');
+		
+		_brandPicker.open({
+			rect:{x:pickerX, y: pickerY, w:pickerW, h:pickerH},
+			styles:{
+		        bg: '#BBBBBB',   
+		        text:{                  
+		           size: 14,             
+		           selected: '#fff',     
+		           normal: '#000'        
+		        },
+		        item:{                   
+		          w: 80,                
+		          h: 45,                
+		          normal: '#87ceeb',    
+		          selected: '#218868',  
+		          zoomIn: 1.0       
+		        }
+		   	},
+			rows:5,
+			indexs: selected_brand_series_index,
+   			bounce: false,
+			fixedOn:api.frameName,
+			fixed:false,
+			//data:[{'value':{'id':1, 'name':'A'}}, {'value':{'id':2, 'name':'B'}}, {'value':{'id':3, 'name':'C'}}]
+			data:brand_model_str
+			}, function(ret, err){
+				
+               	//setCarBrandAndModelInfo(ret.selects);
+               	_selected_brand_series_str = ret.selects;
+			});
+		
+	}
+	
+	function closePicker(){
+		if(_brandPicker) _brandPicker.close();
+		_brandPicker = null;
+	}
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+	
+	
+	
+	function doSelect(){
+		
+		/*
+		api.alert({
+			msg:_selected_brand_series_str
+        },function(ret,err){
+        	//coding...
+        });
+		*/
+		
+		// 把选中的信息分成三个JSON
+		var section1 = JSON.stringify(_selected_brand_series_str[0]);
+		var section2 = JSON.stringify(_selected_brand_series_str[1]);
+		var section3 = JSON.stringify(_selected_brand_series_str[2]);
+      
+       api.execScript({
+       	    name:'addcar',
+       		frameName:'car_info_item',
+	       script: 'setCarBrandAndModelInfo(' + section1 + ', ' + section2 + ',' + section3 + ');'
+       });
+      
+	}
+</script>
+</html>

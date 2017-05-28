@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    	
+    	input {height: 50px;font-size: 16px;color: #8E8C8C;width: 100%;outline: none;}
+		input::-webkit-input-placeholder {color: #ccc;}
+    </style>
+</head>
+<body>
+	<div style="padding: 10px">
+			<center><img src="../../image/loading_more.gif" /></center><br>
+			<center>加载中...</center>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/carchat.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var userId = $api.getStorage("uid");
+    
+    // 记录个数
+    var existed_record_count = 0;
+    
+    var field_item_gap = 8;
+    var field_item_height = 15;
+    
+    // 删除按钮的样式
+    var delete_btn_style = "right: 5px;  top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF";
+        		
+    
+	apiready = function(){
+	
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 标题名称， 中文
+		//var tool_frame_name = tool_info.frame_name;
+		//var tool_frame_file = tool_info.frame_file;
+		var function_name = tool_info.function_name; 
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+
+				
+		var data = {values:{"car_id":car_id, "function_name":function_name}}; 
+		
+		
+		// 获取车辆功能的记录的字段和值
+		api.ajax({
+	        "url":_server_ip + '/carchat/car_function_records',
+	        "method": "POST",
+      		"cache": false,
+      		"headers": {
+        		"X-APICloud-AppId": appId,
+        		"X-APICloud-AppKey": appKey
+      		},
+      		"data": data
+        },function(ret,err){
+        
+        
+        	// ret: [[[记录id, 记录字段值ID，字段名称, 字段类型, 字段值], ...], [ ]]
+        	if(ret){
+        		
+        		var i, j, count1, count2;
+        		var rec_id ;
+        		var f_v_rec_id ;
+        		var field_name ;
+        		var field_type ;
+        		var field_value ;
+        			
+        		
+        		//var field_item_gap = 8;
+        		//var field_item_height = 15;
+        		
+        		var rec_item_height;
+        		
+        		// 删除按钮的样式
+        		//var delete_btn_style = "right: 5px;  top:10px; height:30px; width:45px;text-align:center;line-height:30px;border-radius:5px; font-size:13px;position:absolute;background-color:#FA4C3D;color:#FFFFFF";
+        		
+        		
+        		count1 = ret.length;
+        		
+        		existed_record_count = count1; // 保存下记录个数
+        		
+        		if(count1 > 0)
+        			document.body.innerHTML = "";
+        		else
+        			document.body.innerHTML = "<center>无数据记录。</center>"; // 默认显示
+        			
+        		// 循环每个记录
+        		for(i = 0; i < count1; i++){ // 记录
+        		
+        			rec_id = ret[i][0][0]; // 功能记录的ID
+        		
+        			var item_html_str = "";
+        		
+        			count2 = ret[i].length; // 字段个数
+        			
+        			rec_item_height = count2 * (field_item_gap + field_item_height); // 记录内容Div的高度
+        			
+        			for(j = 0; j < count2; j++){ // 循环每个字段
+        			
+	        			
+	        			//f_v_rec_id = ret[i][j][1];
+	        			field_name = ret[i][j][2];
+	        			//field_type = ret[i][j][3];
+	        			field_value = ret[i][j][4];
+        			
+        				var top = field_item_gap * (j + 1) + field_item_height * j; // 每个字段行的top位置
+        				
+        				item_html_str += "<div style='top:" + top + "px;left: 10px; font-size: 15px;position: absolute;color:#000000;'>" + field_name + "</div>";
+        				item_html_str += "<div style='top:" + top + "px;left: 130px; font-size: 15px;position: absolute;color:#ABABAB;'>" + field_value + "</div>";
+        				
+        				if(relation_type == 1){ // 如果是拥有该车辆，则增加删除按钮
+        					item_html_str += "<div style='" + delete_btn_style + "' onclick=\"remove_record_item('" + tool_title + "', " + rec_id + ")\">删除</div>";
+        				}
+        				//item_html_str += "<div style='top:" + top + "px;' class='field'>" + field_name + "  " + field_value + "</div>";
+        			
+        				//document.body.innerHTML += "<div style='top:" + top + "px;' class='field_name'>" + field_name + "</div>" + 
+        			    //                       "<div style='top:" + top + "px;' class='field_value'>" + field_value + "</div>"
+        			}
+        			
+        			document.body.innerHTML += "<div id='div_function_record_" + rec_id + "' style='height:" + rec_item_height + "px' class='car_function_record_item'>" + item_html_str + "</div>";
+        			//document.body.innerHTML += "</div>";
+        		}
+        	
+        	}
+        	else{
+        		document.body.innerHTML = "<center>加载数据失败。</center>"
+        	}
+        
+        })
+	};
+	
+	function add_one_record_item_to_top(rec_id, field_names_str, field_values_str){
+		// 往列表的顶部添加一条记录
+		// field_names_str, field_values_str: 以;隔开的字段名称和字段值
+		
+		
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 标题名称， 中文
+		//var tool_frame_name = tool_info.frame_name;
+		//var tool_frame_file = tool_info.frame_file;
+		var function_name = tool_info.function_name; 
+		
+		/*
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		
+		var car_id = car_info_json.car_id;
+		var relation_type = car_info_json.relation_type;
+		*/
+					if(existed_record_count == 0){ // 先清空
+						document.body.innerHTML = "";
+					}
+					existed_record_count++; // 保存下记录的个数，递增1
+		
+					var field_names = field_names_str.split(';'); // 获取字段名称的数组
+					var field_values = field_values_str.split(';');
+        		
+					var item_html_str = "";
+        		
+        			field_count = field_names.length; // 字段个数
+        			
+        			rec_item_height = field_count * (field_item_gap + field_item_height); // 记录内容Div的高度
+        			
+        			var i;
+        			for(i = 0; i < field_count; i++){ // 循环每个字段
+        			
+	        			field_name = field_names[i];
+	        			field_value = field_values[i];
+        			
+        				var top = field_item_gap * (i + 1) + field_item_height * i; // 每个字段行的top位置
+        				
+        				item_html_str += "<div style='top:" + top + "px;left: 10px; font-size: 15px;position: absolute;color:#000000;'>" + field_name + "</div>";
+        				item_html_str += "<div style='top:" + top + "px;left: 130px; font-size: 15px;position: absolute;color:#ABABAB;'>" + field_value + "</div>";
+        				
+        				// 如果是拥有该车辆，则增加删除按钮
+        				item_html_str += "<div style='" + delete_btn_style + "' onclick=\"remove_record_item('" + tool_title + "', " + rec_id + ")\">删除</div>";
+        				
+        			}
+        			
+        			var rec_item_html_str = "<div id='div_function_record_" + rec_id + "' style='height:" + rec_item_height + "px' class='car_function_record_item'>" + item_html_str + "</div>";
+        			
+        			document.body.innerHTML = rec_item_html_str + document.body.innerHTML;
+        			//document.body.innerHTML += "</div>";
+	}
+	
+	
+	function remove_record_item(tool_title, rec_id){
+		// 删除一条记录
+		
+		api.confirm({
+	               	title:'删除' + tool_title,
+	               	msg:'确定要删除'+ tool_title + '吗？',
+	               	buttons:['确定','取消']
+                   }, function(ret,err){
+			
+			if(ret.buttonIndex == 1){
+			
+				// 显示进度
+				api.showProgress({
+					style:'default',
+					animationType:'fade',
+					title:'',
+					text:'',
+					modal:true
+		        });
+			
+				
+				var data = {values:{"record_id":rec_id}};
+				
+				api.ajax({
+			        "url":_server_ip + '/carchat/delete_one_function_record',
+			        "method": "POST",
+		      		"cache": false,
+		      		"headers": {
+		        		"X-APICloud-AppId": appId,
+		        		"X-APICloud-AppKey": appKey
+		      		},
+		      		"data": data
+		        },function(ret,err){
+		        	        
+		        	api.hideProgress();
+		        	        
+		        	if(ret){
+		        		// ret[0]: true
+		        		api.toast({msg:'删除成功。',location:'middle'});
+		        		
+		        		//var d = $api.byId('car_news_item_div');
+		        		//var c = $api.byId('car_news_item_' + id);
+		        		var item_div = $api.byId('div_function_record_' + rec_id);
+		        		document.body.removeChild(item_div);
+		        		
+		        		
+		        		existed_record_count--; // 记录数递减
+		        		if(existed_record_count <= 0){
+		        			//var d = $api.byId('car_news_item_div');
+		        			document.body.innerHTML = "<center>无数据记录。</center>";
+		        		}
+		        	}
+		        	else{
+		        		api.toast({msg:'删除失败。',location:'middle'});
+		        	}
+		        	
+		        });
+	        }
+	      });
+	      
+	}
+	
+	function remove_all_function_record(){
+		// 清空功能记录
+		
+		// 页面参数
+		var tool_info = api.pageParam;
+		var tool_title = tool_info.title; // 标题名称， 中文
+		var function_name = tool_info.function_name; // 功能名称，英文
+		
+		// 先从本地存储中获取当前车辆的信息
+		// car_info: {user_id | car_id | car_mark  | brand_cn_name | series_cn_name | model_name | logourl | relation_type | news}
+		var car_info_json = $api.getStorage('current_car_info');
+		var car_id = car_info_json.car_id;
+		
+		
+		api.confirm({
+	               	title:'清空' + tool_title,
+	               	msg:'确定要清空'+ tool_title + '吗？',
+	               	buttons:['确定','取消']
+        	}, function(ret,err){
+				if(ret.buttonIndex == 1){
+					// 显示进度
+					api.showProgress({
+						style:'default',
+						animationType:'fade',
+						title:'',
+						text:'',
+						modal:true
+			        });
+				
+					var data = {values:{"car_id":car_id, "function_name":function_name}};
+				
+					api.ajax({
+				        "url":_server_ip + '/carchat/remove_all_function_record',
+				        "method": "POST",
+			      		"cache": false,
+			      		"headers": {
+			        		"X-APICloud-AppId": appId,
+			        		"X-APICloud-AppKey": appKey
+			      		},
+			      		"data": data
+			        },function(ret,err){
+			        	        
+			        	api.hideProgress();
+			        	        
+			        	if(ret){
+			        		// ret[0]: true
+			        		api.toast({msg:'清空记录成功。',location:'middle'});
+			        					        		
+			        		existed_record_count = 0; // 记录数递减
+			        		document.body.innerHTML = "<center>无数据记录。</center>";
+			        		
+			        	}
+			        	else{
+			        		api.toast({msg:'清空记录失败。',location:'middle'});
+			        		
+			        	}
+			        	
+			        });
+				}
+			});
+	}
+</script>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/carchat.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<div id="wrap" class="flex-wrap flex-vertical">
+
+				<div id="toptoolbar" class="carchat_header">
+					<div class="left" onclick="cancel()"><img src="../../image/back.png"></div>
+					<div class="right" onclick="doSelect()">确定</div>
+					<span id="title"></span>
+				</div>
+				
+		<div id="car_model_list" class="flex-con">
+			
+		</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+
+	var appId = $api.getStorage("appId");
+    var appKey = $api.getStorage("appKey");
+    var uId = $api.getStorage("uid");
+    
+	var _brand_model_string = null;
+    var _brandPicker = null;
+    var _selected_brand_series_index = null;// 选中的汽车品牌及车系Index
+    var _selected_model_index = null;
+
+	apiready = function(){
+		
+		
+		
+		// 获取汽车品牌ID
+		var brand_info = api.pageParam;
+		var brand_series_name = brand_info.brand_series_name;
+		$api.byId("title").innerText = brand_series_name;
+	
+		
+		if(_brand_model_string == null){
+			
+			api.ajax({
+		        "url": _server_ip + '/carchat/brand_model_picker_string',
+		        "method": "GET",
+	      		"cache": false,
+	      		"headers": {
+	        		"X-APICloud-AppId": appId,
+	        		"X-APICloud-AppKey": appKey
+	      		}
+	        },function(ret,err){
+	        	if(ret){
+	        		_brand_model_string = ret;
+	        		openBrandModelPicker(_brand_model_string);
+	        		
+	        	}
+	        });
+        
+		}
+		else{
+			openBrandModelPicker(_brand_model_string);
+		}
+	};
+	
+	function openBrandModelPicker(brand_model_str){
+		
+        
+        var txtBrand = $api.byId('brand_name');
+        var offsetBottom = getAbsoluteTop(txtBrand);
+        var pickerY = offsetBottom + txtBrand.offsetHeight;
+        var pickerX = 50;
+        var pickerW = api.winWidth - 2 * pickerX;
+        
+        if(_selected_brand_series_index == null){
+        	_selected_brand_series_index = [0, 0, 0];
+        }
+        
+        
+        if(_brandPicker == null){
+		_brandPicker = api.require('UILinkedPicker');
+		
+		_brandPicker.open({
+			rect:{x:pickerX, y: pickerY, w:pickerW, h:400},
+			styles:{
+		        bg: '#BBBBBB',   
+		        text:{                  
+		           size: 14,             
+		           selected: '#fff',     
+		           normal: '#000'        
+		        },
+		        item:{                   
+		          w: 80,                
+		          h: 45,                
+		          normal: '#87ceeb',    
+		          selected: '#218868',  
+		          zoomIn: 1.0       
+		        }
+		   	},
+			rows:5,
+			indexs: _selected_brand_series_index,
+   			bounce: false,
+			fixedOn:api.frameName,
+			fixed:false,
+			//data:[{'value':{'id':1, 'name':'A'}}, {'value':{'id':2, 'name':'B'}}, {'value':{'id':3, 'name':'C'}}]
+			data:brand_model_str
+			}, function(ret, err){
+				
+				/*
+				 
+				 api.alert({
+					msg:JSON.stringify(ret)
+                },function(ret,err){
+                	//coding...
+                });
+                */
+               
+                setCarBrandAndModelInfo(ret.selects);
+			});
+		}
+		else{
+			closePicker();
+		}
+	}
+	
+	function closePicker(){
+		if(_brandPicker) _brandPicker.close();
+		_brandPicker = null;
+	}
+	
+	function cancel(){
+		// 取消，关闭当前窗口
+		api.closeWin({
+        });
+	}
+	
+	
+	
+	function doSelect(){
+       
+       api.execScript({
+       	   frameName: 'car_model_list',
+	       script: 'doSelectCarModel();'
+       });
+	}
+</script>
+</html>
